@@ -12,7 +12,7 @@
 
 
 
-<title>Overview</title>
+<title>Validation</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -295,36 +295,95 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Overview</h1>
+<h1 class="title toc-ignore">Validation</h1>
 
 </div>
 
 
-<p><img src="C:/Users/yang/Desktop/git/flow_chart.png" width="1500" /> <br></p>
-<div id="what-is-dbslmm" class="section level1">
-<h1>What is DBSLMM</h1>
-<p>DBSLMM is the software implementing the Deterministic Bayesian Sparse Linear Mixed Model (DBSLMM). DBSLMM can be used to construction Polygenic Genetics Score (PGS). It fits Linear Mixed Model using summary statistics, LD matrix and LD block information. It is computationally efficient and accurate for Biobank scale GWAS data and uses freely available open-source numerical libraries.</p>
+<div id="example-data" class="section level1">
+<h1>Example data</h1>
+<ul>
+<li>DBSLMM result (<code>your/path/out/summary_gemma_chr1.assoc.dbslmm.txt</code>) <br> The result of DBSLMM. <br></li>
+<li>External summary statistics (<code>summary_external.txt</code>) <br> The summary statsitics of standing hright (GIANT data).</li>
+<li>Reference data (<code>ref_chr1.bed</code>, <code>ref_chr1.bim</code> and <code>ref_chr1.fam</code>) <br> We sampled 300 samples from the 1000 Gemone Project data. <br> Note: The phenotype of test data is simulated by normal distribution. Therefore, you can not use the test data to evaluate the prediction performance.</li>
+</ul>
 </div>
-<div id="model-for-dbslmm" class="section level1">
-<h1>Model for DBSLMM</h1>
-<p><span class="math display">\[y=X_{l} \beta _{l}+X_{s} \beta _{s}+ \epsilon \]</span> where <span class="math inline">\(X_{l}\)</span> is the  by <span class="math inline">\(m_{l}\)</span> genotype matrix for <span class="math inline">\(m_{l}\)</span> selected likely large-effect SNPs; <span class="math inline">\(\beta _{l}\)</span> is an <span class="math inline">\(m_{l}\)</span> -vector of corresponding effect sizes; <span class="math inline">\(X_{s}\)</span> is the  by <span class="math inline">\(m_{s}\)</span> genotype matrix for <span class="math inline">\(m_{s}=m-m_{l}\)</span> remaining likely small-effect SNPs; <span class="math inline">\(\beta _{s}\)</span> is an <span class="math inline">\(m_{s}\)</span> -vector of corresponding effect sizes.<br></p>
+<div id="input-file-format" class="section level1">
+<h1>Input file format</h1>
+<ul>
+<li>DBSLMM result <br></li>
+</ul>
+<pre class="bash"><code>rs13302957 G 0.546652 1.82642 1
+rs3748588 T 0.273432 1.64563 1
+rs74045047 A -0.282306 -0.5378 1
+rs3845292 G 0.159231 0.22554 1
+rs113288277 T -0.0524222 -0.18273 1
+rs112797925 A 0.252739 1.12303 1
+rs12743678 A 0.741517 1.51564 1
+rs141242758 C 0.00548007 0.0124342 0
+rs28544273 A 0.0114189 0.0248473 0
+rs3115860 C 0.00628248 0.013297 0</code></pre>
+<ul>
+<li>External summary statistics <br></li>
+</ul>
+<pre class="bash"><code>rs4747841 A 0.449 -0.000773760673593586
+rs4749917 T 0.436 0.000771419263435909
+rs878177 T 0.3 0.009073036977771
+rs12219605 T 0.427 0.00076948282631908
+rs3763688 C 0.144 -0.00109233489370248
+rs3763689 T 0.217 -0.00466354028609167
+rs1983867 C 0.431 0.00770375479879779
+rs1983866 A 0.288 -0.0089655982510929
+rs1983865 T 0.425 0.00769017229976026
+rs1983864 T 0.3 -0.00907303697777101</code></pre>
+<ul>
+<li>Reference panel (<a href="https://www.cog-genomics.org/plink/1.9/formats">PLINK format</a>) <br> The same file name of bed, bim and fam files.</li>
+</ul>
 </div>
-<div id="what-is-external-validation" class="section level1">
-<h1>What is External Validation</h1>
-<p>External validation is another software in DBSLMM. It can be used to constrution PGS by exteranl summary statsitics and reference panel. It is flexiable to construct PGS for each chromosome one by one or 22 chromosomes together.</p>
+<div id="input-parameters" class="section level1">
+<h1>Input parameters</h1>
+<p>We prepare all the input file in the folder <code>test_dat</code>. You can output the explanation for each parameter:</p>
+<pre class="bash"><code>Rscript VALID.R -h
+Rscript VALID.R --help</code></pre>
+<p>The details is:</p>
+<pre class="bash"><code>--dbslmm=CHARACTER
+        INPUT:  the result of dbslmm
+--external=CHARACTER
+        INPUT:  the external summary statistics
+--ref=CHARACTER
+        INPUT:  the perfix of reference panel
+--block=CHARACTER
+        INPUT:  the block information (Berisa and Pickrell 2015)
+--chr=CHARACTER
+        INPUT:  the chromosome number
+--mafMax=CHARACTER
+        INPUT:  the maximium of the difference between reference panel and external data
+--outPath=CHARACTER
+        OUTPUT: the output path</code></pre>
 </div>
-<div id="model-for-external-validation" class="section level1">
-<h1>Model for External Validation</h1>
-<p><span class="math display">\[R=cor(\tilde{y},\hat{\tilde{y}})=\frac{cov(\tilde{y},\hat{\tilde{y}})}{var(\tilde{y})var(\hat{\tilde{y}})}=\frac{\tilde{z}^T\hat{\beta}}{\sqrt{\hat{\beta}^T\it\Sigma\hat{\beta}}}\]</span> where <span class="math inline">\(\tilde{z}\)</span> is the z-score for external observed summary statistics in terms of z-score, <span class="math inline">\(\hat{\beta}\)</span> is the estimated effect from DBSLMM and <span class="math inline">\(\it\Sigma\)</span> is the LD structure of reference panel.</p>
+<div id="output" class="section level1">
+<h1>Output</h1>
+<p>The output of <code>VALID.R</code> is the <span class="math inline">\(R^2\)</span>. It will be print in the screen.</p>
 </div>
-<div id="installation" class="section level1">
-<h1>Installation</h1>
-<p>In order to install <code>DBSLMM</code> and <code>VALID</code>, you should clone this repository via the commands</p>
-<pre class="bash"><code>git clone https://github.com/biostat0903/DBSLMM.git</code></pre>
-</div>
-<div id="citation" class="section level1">
-<h1>Citation</h1>
-<p>Sheng Yang, Xiang Zhou (2019). Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets. <em>bioRxiv</em>.</p>
+<div id="example-code" class="section level1">
+<h1>Example code</h1>
+<p>We use the data of <code>test_dat</code> to show the external validation.</p>
+<pre class="bash"><code>### change file permission 
+valid=/your/path/DBSLMM/software/valid
+chmod 777 ${valid}
+### External validation
+VALID=/your/path/DBSLMM/software/VALID.R
+dbslmmRes=/your/path/DBSLMM/test_dat/out/summary_gemma_chr
+summf=/your/path/DBSLMM/test_dat/external_summary
+outPath=/your/path/DBSLMM/test_dat
+ref=/your/path/DBSLMM/test_dat/ref_chr
+blockf=/your/path/DBSLMM/test_dat/chr
+### for chromosome 1 (example)
+Rscript ${VALID} --dbslmm ${dbslmmRes} --external ${summf}.txt --ref ${ref} --valid ${valid} --block ${blockf} \
+                 --chr 1 --mafMax 1 --outPath ${outPath}
+### for whole genome (If you have whole genome data, you can use the command)
+Rscript ${VALID} --dbslmm ${dbslmmRes} --external ${summf}.txt --ref ${ref} --valid ${valid} --block ${blockf} \
+                 --chr all --mafMax 0.2 --outPath ${outPath}</code></pre>
 </div>
 
 
