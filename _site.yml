@@ -7,7 +7,7 @@ navbar:
       href: index.html
     - text: "Manual"
       href: Manual.html
-    - text: "Validate"
+    - text: "External Validate"
       href: Validate.html
     - text: "Scripts for Other Methods"
       href: Scripts.html

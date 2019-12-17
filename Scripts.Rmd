@@ -7,7 +7,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Download
-All the code is in the `Compared_methods` flod. You can download it: 
+All the code is in the `Compared_methods` folder. You can download it: 
 ````{r, engine = 'bash', eval = FALSE}
 git clone https://github.com/biostat0903/DBSLMM-Anaysis.git
 ````
