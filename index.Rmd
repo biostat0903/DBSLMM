@@ -6,7 +6,7 @@ title: "Overview"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-![](C:\\Users\\yang\\Desktop\\git\\flow_chart.png){height=1000px, width=1500px} <br>
+![](C:\\Users\\yang\\Desktop\\git\\DBSLMM\\flow_chart.png){height=1000px, width=1500px} <br>
 
 
 # What is DBSLMM
