@@ -58,8 +58,8 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	double len_l = num_l.max(); 
 	double len_s = num_s.max(); 
 	int B = 0;
-	int B_MAX = 24;
-	if (num_block < 24){
+	int B_MAX = 50;
+	if (num_block < 50){
 		B_MAX = thread; 
 	}
 
@@ -316,7 +316,6 @@ int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_
 	
 	// beta_s
 	SIGMA_ss.diag() += 1.0 / (sigma_s * (double)n_obs);
-	// cout << "Step1 yy" << endl;
 	vec SIGMA_ss_inv_z_s = PCGv(SIGMA_ss, z_s, 1000, 1e-7);
 	SIGMA_ss.diag() -= 1.0 / (sigma_s * (double)n_obs);
 	vec SIGMA_ss_SIGMA_ss_inv_z_s = SIGMA_ss * SIGMA_ss_inv_z_s;
