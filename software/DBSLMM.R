@@ -25,28 +25,37 @@ library(optparse)
 args_list <- list(
   make_option("--summary", type = "character", default = NULL,
               help = "INPUT: the summary statistics (gemma output format)", metavar = "character"),
-  make_option("--outPath", type="character", default=NULL,
-              help="INPUT: the output path", metavar="character"),
   make_option("--plink", type = "character", default = NULL,
               help = "INPUT: the perfix of Plink software", metavar = "character"),
   make_option("--dbslmm", type = "character", default = NULL,
               help = "INPUT: the perfix of dbslmm software", metavar = "character"),
   make_option("--ref", type = "character", default = NULL,
               help = "INPUT: the perfix of reference panel", metavar = "character"),
-  make_option("--r2", type = "character", default = NULL,
-              help = "INPUT: the cutoff of SNPs clumping (default: 0.1)", metavar = "character"),
-  make_option("--pv", type = "character", default = NULL,
-              help = "INPUT: the cutoff of SNPs pruning (default: 1e-6)", metavar = "character"),
-  make_option("--mafMax", type = "character", default = NULL,
-              help = "INPUT: the maximium of the difference between reference panel and summary data (default:0.2)", metavar = "character"),
-  make_option("--nsnp", type = "character", default = NULL,
-              help = "INPUT: the number of SNPs in whole genome", metavar = "character"),
   make_option("--block", type = "character", default = NULL,
               help = "INPUT: the block information (Berisa and Pickrell 2015)", metavar = "character"),
+  make_option("--outPath", type="character", default=NULL,
+              help="INPUT: the output path", metavar="character"),
+  make_option("--n", type = "character", default = NULL,
+              help = "INPUT: the sample size of summary data", metavar = "character"),
+  make_option("--nsnp", type = "character", default = NULL,
+              help = "INPUT: the number of SNPs in whole genome", metavar = "character"),
   make_option("--h2", type = "character", default = NULL,
               help = "INPUT: the heritability of trait", metavar = "character"),
-  make_option("--thread", type = "character", default = NULL,
-              help = "INPUT: the number of threads (default: 2)", metavar = "character")
+  make_option("--type", type="character", default="d",
+              help="INPUT: type of DBSLMM (default: default version)", 
+              metavar="character"),
+  make_option("--r2", type = "character", default = "0.1",
+              help = "INPUT: the cutoff of SNPs clumping (default: 0.1)", 
+              metavar = "character"),
+  make_option("--pv", type = "character", default = "1e-6",
+              help = "INPUT: the cutoff of SNPs pruning (default: 1e-6)", 
+              metavar = "character"),
+  make_option("--mafMax", type = "character", default = "0.2",
+              help = "INPUT: the maximium of the difference between reference panel and summary data (default:0.2)", 
+              metavar = "character"),
+  make_option("--thread", type = "character", default = "5",
+              help = "INPUT: the number of threads (default: 5)", 
+              metavar = "character")
 )
 
 opt_parser <- OptionParser(option_list=args_list)
@@ -55,20 +64,19 @@ opt <- parse_args(opt_parser)
 ## output the options
 cat("Acccept Options: \n")
 cat("--summary:  ", opt$summary, "\n")
-cat("--outPath:  ", opt$outPath, "\n")
 cat("--plink:    ", opt$plink, "\n")
 cat("--dbslmm:   ", opt$dbslmm, "\n")
-r2 <- ifelse(is.null(opt$r2), 0.1, opt$r2)
-cat("--r2:       ", r2, "\n")
-pv <- ifelse(is.null(opt$pv), 1e-6, opt$pv)
-cat("--p:        ", pv, "\n")
-mafMax <- ifelse(is.null(opt$mafMax), 0.2, opt$mafMax)
-cat("--mafMax:   ", mafMax, "\n")
-cat("--nsnp:     ", opt$nsnp, "\n")
+cat("--ref:      ", opt$ref, "\n")
 cat("--block:    ", opt$block, "\n")
+cat("--outPath:  ", opt$outPath, "\n")
+cat("--n:        ", opt$n, "\n")
+cat("--nsnp:     ", opt$nsnp, "\n")
 cat("--h2:       ", opt$h2, "\n")
-thread <- ifelse(is.null(opt$thread), 5, opt$thread)
-cat("--thread:   ", thread, "\n")
+cat("--type:     ", opt$type, "\n")
+cat("--r2:       ", opt$r2, "\n")
+cat("--p:        ", opt$pv, "\n")
+cat("--mafMax:   ", opt$mafMax, "\n")
+cat("--thread:   ", opt$thread, "\n")
 
 ## check the options
 if (!file.exists(opt$summary)){
@@ -83,64 +91,82 @@ if (!file.exists(opt$plink)){
   cat(paste0("ERROR: ", opt$plink, " does not exist! Please check!\n"))
   q()
 }
+if (!file.exists(opt$dbslmm)){
+  cat(paste0("ERROR: ", opt$dbslmm, " does not exist! Please check!\n"))
+  q()
+}
+if (!file.exists(opt$plink)){
+  cat(paste0("ERROR: ", opt$plink, " does not exist! Please check!\n"))
+  q()
+}
 if (!file.exists(opt$block)){
   cat(paste0("ERROR: ", opt$block, " does not exist! Please check!\n"))
   q()
 }
+
+start <- proc.time()
 ## gemma format to plink format
-summ_gemma <- data.frame(fread(opt$summary, header = T))
-p <- ifelse(summ_gemma[, 11] == 0, 1e-100, summ_gemma[, 11])
-summ_plink <- data.frame(CHR = summ_gemma[, 1], SNP = summ_gemma[, 2],
-                         BP = summ_gemma[, 3], NMISS = summ_gemma[, 4],
-                         BETA = summ_gemma[, 9], SE = summ_gemma[, 10],
-                         R2 = 0, T = summ_gemma[, 9] / summ_gemma[, 10],
-                         P = summ_gemma[, 11], BETAS=summ_gemma[, 9])
 s <- strsplit(opt$summary, "\\/")[[1]]
 s <- s[length(s)]
 prefix_file <- strsplit(s, "\\.")[[1]]
-prefix_file <- paste(prefix_file[-length(prefix_file)], collapse = ".")
-write.table(summ_plink, file = paste0(opt$outPath, "plink_", prefix_file, ".txt"), row.names = F, quote = F)
-
-## Plink clumping
-system(paste0(opt$plink, " --bfile ", opt$ref, " --clump ", opt$outPath, "plink_", prefix_file, ".txt",
-              " --clump-kb 1000 --clump-r2 ", r2, " --clump-p1 ", pv,
-              " --clump-p2 ", pv, " --out ", opt$outPath, "l_", prefix_file))
-
-## number of large effect SNP
-snp_clump <- try(data.frame(fread(paste0(opt$outPath, "l_", prefix_file, ".clumped")))[, 3], silent = T)
-if (inherits(snp_clump, "try-error")){
-  cat ("WARNINGS: After clumping, we select no indepent large effect SNPs. We select top five SNPs.")
-  idx_sig <- order(summ_gemma[, 11])[1]
-}else{
-  # maxmium of SNP number
-  num_prop <- floor(0.01 * nrow(summ_gemma))
-  num_clump <- length(snp_clump)
-  num_max <- ifelse(num_prop > num_clump, num_clump, num_prop)
-  snp_max <- snp_clump[c(1: num_max)]
-  
-  idx_sig <- which(summ_gemma[, 2] %in% snp_max)
-  idx_sig <- sort(idx_sig)
+len_prefix_file <- length(prefix_file)
+prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], collapse = ".")
+if (opt$type != "d"){
+  prefix_file <- paste0(prefix_file, "_pv", opt$pv, "_r", opt$r2)
 }
-write.table(summ_gemma[idx_sig, ], file = paste0(opt$outPath, "l_", prefix_file, ".txt"),
-            row.names = F, col.names = F, quote = F, sep = "\t")
-write.table(summ_gemma[-idx_sig, ], file = paste0(opt$outPath, "s_", prefix_file, ".txt"),
-            row.names = F, col.names = F, quote = F, sep = "\t")
+toplink_cmd1 <- paste0("awk '{print $2,$11}' ", opt$summary , " > ", 
+                       opt$outPath, "/plink_", prefix_file, ".txt")
+toplink_cmd2 <- paste0("sed -i '1d' ", opt$outPath, "/plink_", prefix_file, ".txt")
+toplink_cmd3 <- paste0("sed -i '1i\\SNP P' ", opt$outPath, "plink_", prefix_file, ".txt")
+system(toplink_cmd1)
+system(toplink_cmd2)
+system(toplink_cmd3)
 
-## DBSLMM
-sampleSize <- summ_gemma[1, 4] + summ_gemma[1, 5]
-system(paste0(opt$dbslmm, 
+## clumping
+clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, " --silent --clump ", opt$outPath, "plink_", prefix_file, ".txt",
+                       " --clump-kb 1000 --clump-r2 ", opt$r2, " --clump-p1 ", opt$pv,
+                       " --out ", opt$outPath, "/l_", prefix_file)
+system(clumping_cmd)
+
+if (!file.exists(paste0(opt$outPath, "l_", prefix_file, ".clumped"))){
+  cat ("Using", opt$pv, ", no significant SNPs. Most significant SNPs are regarded as fixed effect.\n")
+  sort_cmd <- paste0("sort -k 11 -n ", opt$summary, " | head -n 1 > ", 
+                     opt$outPath, "/l_snp_", prefix_file, ".txt")
+  system(sort_cmd)
+  lsnp_p <- read.table(paste0(opt$outPath, "/l_snp_", prefix_file, ".txt"))[1, 2]
+} else {
+  tosnp_cmd <- paste0("awk '{print $3}' ", opt$outPath, "l_", prefix_file, ".clumped", " > ", 
+                      opt$outPath, "/l_snp_", prefix_file, ".txt")
+  system(tosnp_cmd)
+  lsnp <- read.table(paste0(opt$outPath, "/l_snp_", prefix_file, ".txt"), header = T, 
+                     stringsAsFactors = F)[, 1]
+  cat ("Using", opt$pv, ",", length(lsnp), "SNPs are regarded as fixed effect.\n")
+  lsnp_p <- paste(lsnp, collapse="|")
+}
+l_cmd <- paste0("grep -w -E '", lsnp_p, "' ", opt$summary, " > ", 
+                opt$outPath, "/l_", prefix_file, ".txt")
+s_cmd1 <- paste0("grep -w -E -v '", lsnp_p, "' ", opt$summary, " > ", 
+                 opt$outPath, "/s_", prefix_file, ".txt")
+s_cmd2 <- paste0("sed -i '1d' ", opt$outPath, "/s_", prefix_file, ".txt")
+system(l_cmd)
+system(s_cmd1)
+system(s_cmd2)
+end <- proc.time()
+cat("Clumping time: ", end[3]-start[3], "s.\n")
+
+## dbslmm
+system(paste0(opt$dbslmm,
               " -s ",      opt$outPath, "s_", prefix_file, ".txt",
               " -l ",      opt$outPath, "l_", prefix_file, ".txt",
               " -r ",      opt$ref,
-              " -n ",      sampleSize,
-              " -mafMax ", mafMax,
+              " -n ",      opt$n,
+              " -mafMax ", opt$mafMax,
               " -nsnp ",   opt$nsnp,
               " -b ",      opt$block,
               " -h ",      opt$h2,
-              " -t ",      thread,
+              " -t ",      opt$thread,
               " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
 system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
-system(paste0("rm ", opt$outPath, "l_", prefix_file, ".txt"))
+system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
 system(paste0("rm ", opt$outPath, "s_", prefix_file, ".txt"))
-system(paste0("rm ", opt$outPath, "l_", prefix_file, ".clumped"))
-system(paste0("rm ", opt$outPath, "l_", prefix_file, ".log"))
+system(paste0("rm ", opt$outPath, "l_snp_", prefix_file, ".txt"))
