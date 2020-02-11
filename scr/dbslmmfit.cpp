@@ -60,7 +60,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	int B = 0;
 	int B_MAX = 50;
 	if (num_block < 50){
-		B_MAX = thread; 
+		B_MAX = num_block; 
 	}
 
 	// pseudo INFO
