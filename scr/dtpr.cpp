@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <time.h>
 #include <math.h>
 #include <sys/time.h>
+#include <cctype>
 #include <boost/math/distributions/students_t.hpp>
 
 #include <armadillo>
@@ -156,6 +157,7 @@ double IO::calP(double beta, double se, int sampleSize){
 	return p;
 }
 
+
 // input summary data
 int IO::readSumm(string summ_str, char *separator, vector<SUMM > &summ){
 
@@ -171,6 +173,21 @@ int IO::readSumm(string summ_str, char *separator, vector<SUMM > &summ){
 		stringstream summ_stream(snp);
 		while (getline(summ_stream, element, *separator)) 
 			snp_summ.push_back(element);
+		double P = atof(snp_summ[10].c_str()); 
+		double se, sei;
+		if (isdigit(snp_summ[9].c_str()[0])){
+			se = atof(snp_summ[9].c_str());
+			if (se - 0.0 > 1e-20){
+				summ[summ_count].z = atof(snp_summ[8].c_str()) / se;
+				summ[summ_count].P = calP(atof(snp_summ[8].c_str()), se, atoi(snp_summ[4].c_str()));
+			} else {
+				summ[summ_count].z = 0; 
+				summ[summ_count].P = 1;
+			}
+		} else {
+			summ[summ_count].z = 0; 
+			summ[summ_count].P = 1;
+		}
 		summ[summ_count].chr = atoi(snp_summ[0].c_str());
 		summ[summ_count].snp = snp_summ[1];
 		summ[summ_count].ps = atol(snp_summ[2].c_str());
@@ -178,9 +195,8 @@ int IO::readSumm(string summ_str, char *separator, vector<SUMM > &summ){
 		summ[summ_count].a2 = snp_summ[6].c_str();
 		double af = atof(snp_summ[7].c_str());
 		summ[summ_count].maf = min(af, 1.0 - af);
-		summ[summ_count].z = atof(snp_summ[8].c_str()) / atof(snp_summ[9].c_str());
-		summ[summ_count].P = calP(atof(snp_summ[8].c_str()), atof(snp_summ[9].c_str()), atoi(snp_summ[4].c_str()));
 		summ_count++; 
+	
 	}
 	summ_stream.close();
 	

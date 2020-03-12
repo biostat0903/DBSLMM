@@ -142,7 +142,7 @@ public:
 				map<string, ALLELE> &bim, bool constr);                                  // input bim file for dbslmm
 	int readBim(int n_ref, string ref_str, char *separator, 
 				map<string, ALLELEB> &bim, bool constr);                                 // input bim file for external validation
-	double calP(double beta, double se, int sampleSize);                                 // re-calculate P value from GEMMA output
+	double calP(double beta, double se, int sampleSize);                                 // calculate P value from GEMMA output
 	int readSumm(string summ_str, char *separator, vector<SUMM> &summ);                  // input gemma summary data
 	void readSNPIm(const int pos, int ni_test, const vector<int> &indicator_idv, 
 	               ifstream &infile, vec &geno, double &maf);                            // input genotype data

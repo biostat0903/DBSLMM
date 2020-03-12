@@ -75,7 +75,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	info_pseudo.P = 0; 
 	
 	// loop 
-	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s)), info_l_Block(B_MAX, vector <INFO> ((int)len_l));
+	vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s)), info_l_Block(B_MAX, vector <INFO*> ((int)len_l));
 	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s)), eff_l_Block(B_MAX, vector <EFF> ((int)len_l));
 	vector <int> num_s_vec, num_l_vec;
 	for (int i = 0; i < num_block; ++i) {
@@ -91,12 +91,12 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 			}
 		}
 		for (size_t k = 0; k < info_s_block.size(); k++)
-			info_s_Block[B][k] = info_s_block[k]; 
+			info_s_Block[B][k] = &info_s_block[k]; 
 		num_s_vec.push_back((int)num_s(i));
 		
 		// large effect SNP information
 		if (num_l(i) == 0){
-			info_l_Block[B][0] = info_pseudo;
+			info_l_Block[B][0] = &info_pseudo;
 		}else{
 			vector <INFO> info_l_block;
 			for (size_t j = count_l; j < info_l.size(); j++) {
@@ -108,7 +108,7 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 				}
 			}
 			for (size_t k = 0; k < info_l_block.size(); k++)
-				info_l_Block[B][k] = info_l_block[k]; 
+				info_l_Block[B][k] = &info_l_block[k]; 
 		}
 		num_l_vec.push_back((int)num_l(i));
 
@@ -139,26 +139,27 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 }
 
 int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, int num_s_block, int num_l_block, 
+						vector <INFO*> info_s_block_full, vector <INFO*> info_l_block_full, 
+						int num_s_block, int num_l_block, 
 						vector <EFF> &eff_s_block, vector <EFF> &eff_l_block){
 	SNPPROC cSP;
 	IO cIO; 
 	ifstream bed_in(bed_str.c_str(), ios::binary);
 	
 	// INFO small effect SNPs 
-	vector <INFO> info_s_block(num_s_block);
+	vector <INFO*> info_s_block(num_s_block);
 	for (int i = 0; i < num_s_block; i++)
 		info_s_block[i] = info_s_block_full[i];
 	// z_s
 	vec z_s = zeros<vec>(num_s_block); 
 	for (int i = 0; i < num_s_block; i++) 
-		z_s(i) = info_s_block[i].z;
+		z_s(i) = info_s_block[i]->z;
 	// small effect genotype matrix
 	mat geno_s = zeros<mat>(n_ref, num_s_block);
 	for (int i = 0; i < num_s_block; ++i) {
 		vec geno = zeros<vec>(n_ref);
 		double maf = 0.0; 
-		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
+		cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 		cSP.nomalizeVec(geno);
 		geno_s.col(i) = geno;
 	}
@@ -173,20 +174,20 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 	vec beta_s = zeros<vec>(num_s_block); 
 	// INFO large effect SNPs 
 	if (num_l_block != 0){
-		vector <INFO> info_l_block(num_l_block);
+		vector <INFO*> info_l_block(num_l_block);
 		for (int i = 0; i < num_l_block; i++) 
 			info_l_block[i] = info_l_block_full[i];
 		// z_l
 		vec z_l = zeros<vec>(num_l_block); 
 		for(int i = 0; i < num_l_block; i++) 
-			z_l(i) = info_l_block[i].z;
+			z_l(i) = info_l_block[i]->z;
 
 		// large effect matrix
 		mat geno_l = zeros<mat>(n_ref, num_l_block);
 		for (int i = 0; i < num_l_block; ++i) {
 			vec geno = zeros<vec>(n_ref);
 			double maf = 0.0; 
-			cIO.readSNPIm(info_l_block[i].pos, n_ref, idv, bed_in, geno, maf);
+			cIO.readSNPIm(info_l_block[i]->pos, n_ref, idv, bed_in, geno, maf);
 			cSP.nomalizeVec(geno);
 			geno_l.col(i) = geno;
 		}
@@ -196,9 +197,9 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		// summary 
 		for(int i = 0; i < num_l_block; i++) {
 			EFF eff_l; 
-			eff_l.snp = info_l_block[i].snp;
-			eff_l.a1 = info_l_block[i].a1;
-			eff_l.maf = info_l_block[i].maf;
+			eff_l.snp = info_l_block[i]->snp;
+			eff_l.a1 = info_l_block[i]->a1;
+			eff_l.maf = info_l_block[i]->maf;
 			eff_l.beta = beta_l(i);
 			eff_l_block[i] = eff_l;
 		}
@@ -214,9 +215,9 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
-		eff_s.snp = info_s_block[i].snp;
-		eff_s.a1 = info_s_block[i].a1;
-		eff_s.maf = info_s_block[i].maf;
+		eff_s.snp = info_s_block[i]->snp;
+		eff_s.a1 = info_s_block[i]->a1;
+		eff_s.maf = info_s_block[i]->maf;
 		eff_s.beta = beta_s(i); 
 		eff_s_block[i] = eff_s;
 	}

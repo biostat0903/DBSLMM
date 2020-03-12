@@ -35,7 +35,7 @@ public:
             vector <EFF> &eff_s, vector <EFF> &eff_l);
 	// calculate in each block
 	int calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
-				  vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, int num_s_block, int num_l_block, 
+				  vector <INFO*> info_s_block_full, vector <INFO*> info_l_block_full, int num_s_block, int num_l_block, 
 				  vector <EFF> &eff_s_block, vector <EFF> &eff_l_block);
 	// solve x=Ab
 	vec PCGv(mat A, vec b, size_t maxiter, const double tol); 
