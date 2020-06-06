@@ -117,7 +117,7 @@ if (opt$type != "d"){
 toplink_cmd1 <- paste0("awk '{print $2,$11}' ", opt$summary , " > ", 
                        opt$outPath, "/plink_", prefix_file, ".txt")
 toplink_cmd2 <- paste0("sed -i '1d' ", opt$outPath, "/plink_", prefix_file, ".txt")
-toplink_cmd3 <- paste0("sed -i '1i\\SNP P' ", opt$outPath, "plink_", prefix_file, ".txt")
+toplink_cmd3 <- paste0("sed -i '1i\\SNP P' ", opt$outPath, "/plink_", prefix_file, ".txt")
 system(toplink_cmd1)
 system(toplink_cmd2)
 system(toplink_cmd3)
