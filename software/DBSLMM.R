@@ -31,8 +31,6 @@ args_list <- list(
               help = "INPUT: the perfix of dbslmm software", metavar = "character"),
   make_option("--ref", type = "character", default = NULL,
               help = "INPUT: the perfix of reference panel", metavar = "character"),
-  make_option("--blockg", type = "character", default = NULL,
-              help = "INPUT: the block information (Berisa and Pickrell 2015)", metavar = "character"),
   make_option("--block", type = "character", default = NULL,
               help = "INPUT: the block information (Berisa and Pickrell 2015)", metavar = "character"),
   make_option("--outPath", type="character", default=NULL,
