@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>. #
 ########################################################################
 
-library(data.table)
+library(bigreadr)
 library(optparse)
 
 ## Parameter setting
@@ -31,6 +31,8 @@ args_list <- list(
               help = "INPUT: the perfix of dbslmm software", metavar = "character"),
   make_option("--ref", type = "character", default = NULL,
               help = "INPUT: the perfix of reference panel", metavar = "character"),
+  make_option("--blockg", type = "character", default = NULL,
+              help = "INPUT: the block information (Berisa and Pickrell 2015)", metavar = "character"),
   make_option("--block", type = "character", default = NULL,
               help = "INPUT: the block information (Berisa and Pickrell 2015)", metavar = "character"),
   make_option("--outPath", type="character", default=NULL,
@@ -41,6 +43,8 @@ args_list <- list(
               help = "INPUT: the number of SNPs in whole genome", metavar = "character"),
   make_option("--h2", type = "character", default = NULL,
               help = "INPUT: the heritability of trait", metavar = "character"),
+  # make_option("--h2f", type = "character", default = NULL,
+  #             help = "INPUT: the heritability of trait", metavar = "character"),
   make_option("--type", type="character", default="d",
               help="INPUT: type of DBSLMM (default: default version)", 
               metavar="character"),
@@ -111,50 +115,70 @@ s <- s[length(s)]
 prefix_file <- strsplit(s, "\\.")[[1]]
 len_prefix_file <- length(prefix_file)
 prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], collapse = ".")
+
 if (opt$type != "d"){
   prefix_file <- paste0(prefix_file, "_pv", opt$pv, "_r", opt$r2)
 }
-toplink_cmd1 <- paste0("awk '{print $2,$11}' ", opt$summary , " > ", 
-                       opt$outPath, "/plink_", prefix_file, ".txt")
-toplink_cmd2 <- paste0("sed -i '1d' ", opt$outPath, "/plink_", prefix_file, ".txt")
-toplink_cmd3 <- paste0("sed -i '1i\\SNP P' ", opt$outPath, "/plink_", prefix_file, ".txt")
-system(toplink_cmd1)
-system(toplink_cmd2)
-system(toplink_cmd3)
 
-## clumping
-clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, " --silent --clump ", opt$outPath, "plink_", prefix_file, ".txt",
-                       " --clump-kb 1000 --clump-r2 ", opt$r2, " --clump-p1 ", opt$pv,
-                       " --out ", opt$outPath, "/l_", prefix_file)
-system(clumping_cmd)
+summstats <- fread2(opt$summ)
+t <- summstats[, 9]/summstats[, 10]
+p_val <- ifelse(t < 0, pnorm(t), pnorm(t, lower.tail = F))*2
+p_val_z <- ifelse(p_val == 0, min(p_val[-which(p_val==0)]), p_val)
+plink_summstats <- data.frame(SNP = summstats[, 2], P = p_val_z)
+write.table(plink_summstats, file = paste0(opt$outPath, "plink_", prefix_file, ".txt"),
+            row.names = F, quote = F)
+
+## large effect clumping
+l_clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, 
+                         " --silent  --clump ", opt$outPath, "plink_", prefix_file, ".txt",
+                         " --clump-r2 ", opt$r2, " --clump-p1 ", opt$pv,
+                         " --clump-kb 10000", 
+                         " --out ", opt$outPath, "/l_", prefix_file)
+system(l_clumping_cmd)
 
 if (!file.exists(paste0(opt$outPath, "l_", prefix_file, ".clumped"))){
-  cat ("Using", opt$pv, ", no significant SNPs. Most significant SNPs are regarded as fixed effect.\n")
-  sort_cmd <- paste0("sort -k 11 -n ", opt$summary, " | head -n 1 > ", 
+  cat ("Using", opt$pv, ", no significant SNPs. The most significant SNPs are regarded as large effect SNPs.\n")
+  sort_cmd <- paste0("sort -k 11 -n ", opt$summary, " | head -n 1 > ",
                      opt$outPath, "/l_snp_", prefix_file, ".txt")
   system(sort_cmd)
   lsnp_p <- read.table(paste0(opt$outPath, "/l_snp_", prefix_file, ".txt"))[1, 2]
 } else {
-  tosnp_cmd <- paste0("awk '{print $3}' ", opt$outPath, "l_", prefix_file, ".clumped", " > ", 
+  tosnp_cmd <- paste0("awk '{print $3}' ", opt$outPath, "l_", prefix_file, ".clumped", " > ",
                       opt$outPath, "/l_snp_", prefix_file, ".txt")
   system(tosnp_cmd)
-  lsnp <- read.table(paste0(opt$outPath, "/l_snp_", prefix_file, ".txt"), header = T, 
+  lsnp <- read.table(paste0(opt$outPath, "/l_snp_", prefix_file, ".txt"), header = T,
                      stringsAsFactors = F)[, 1]
-  cat ("Using", opt$pv, ",", length(lsnp), "SNPs are regarded as fixed effect.\n")
+  cat ("Using", opt$pv, ",", length(lsnp), "SNPs are regarded as large effect.\n")
   lsnp_p <- paste(lsnp, collapse="|")
 }
-l_cmd <- paste0("grep -w -E '", lsnp_p, "' ", opt$summary, " > ", 
+l_cmd <- paste0("grep -w -E -a '", lsnp_p, "' ", opt$summary, " > ",
                 opt$outPath, "/l_", prefix_file, ".txt")
-s_cmd1 <- paste0("grep -w -E -v '", lsnp_p, "' ", opt$summary, " > ", 
-                 opt$outPath, "/s_", prefix_file, ".txt")
-s_cmd2 <- paste0("sed -i '1d' ", opt$outPath, "/s_", prefix_file, ".txt")
 system(l_cmd)
+
+## small effect clumping
+s_cmd1 <- paste0("grep -w -E -a -v '", lsnp_p, "' ", opt$outPath, "plink_", prefix_file, ".txt", " > ",
+                 opt$outPath, "/s_plink_", prefix_file, ".txt")
+s_clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, 
+                         " --silent --clump ", opt$outPath, "s_plink_", prefix_file, ".txt",
+                         " --clump-r2 ", 0.9, " --clump-p1 ", 0.9,
+                         " --clump-kb 10000", 
+                         " --out ", opt$outPath, "/s_", prefix_file)
 system(s_cmd1)
-system(s_cmd2)
+system(s_clumping_cmd)
+tosnp_cmd <- paste0("awk '{print $3}' ", opt$outPath, "s_", prefix_file, ".clumped", " > ",
+                    opt$outPath, "/s_snp_", prefix_file, ".txt")
+system(tosnp_cmd)
+ssnp <- read.table(paste0(opt$outPath, "/s_snp_", prefix_file, ".txt"), header = T,
+                   stringsAsFactors = F)[, 1]
+s_summstats <- summstats[summstats[, 2] %in% ssnp, ]
+write.table(s_summstats, file = paste0(opt$outPath, "/s_", prefix_file, ".txt"), 
+            col.names = F, row.names = F, quote = F, sep = "\t")
+cat(paste0(dim(s_summstats)[1], " SNPs are regarded as small effect.\n"))
 end <- proc.time()
 cat("Clumping time: ", end[3]-start[3], "s.\n")
 
 ## dbslmm
+# h2d <- as.numeric(opt$h2f) * as.numeric(opt$h2)
 system(paste0(opt$dbslmm,
               " -s ",      opt$outPath, "s_", prefix_file, ".txt",
               " -l ",      opt$outPath, "l_", prefix_file, ".txt",
@@ -168,5 +192,7 @@ system(paste0(opt$dbslmm,
               " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
 system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
 system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
-system(paste0("rm ", opt$outPath, "s_", prefix_file, ".txt"))
+system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
+system(paste0("rm ", opt$outPath, "s_plink_", prefix_file, ".txt"))
 system(paste0("rm ", opt$outPath, "l_snp_", prefix_file, ".txt"))
+system(paste0("rm ", opt$outPath, "s_snp_", prefix_file, ".txt"))
