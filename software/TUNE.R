@@ -33,10 +33,6 @@ args_list <- list(
   make_option("--index", type="character", default="r2",
               help="INPUT: four different indexes (MSE and R2 for continuous trait, Brier score and AUC for binary trait)", 
               metavar="character"), 
-  # make_option("--pvRange", type = "character", default = NULL,
-  #             help = "INPUT: the range of p-value threshold", metavar = "character"),
-  # make_option("--ldRange", type = "character", default = NULL,
-  #             help = "INPUT: the range of LD threshold", metavar = "character"),
   make_option("--h2Range", type = "character", default = NULL,
               help = "INPUT: the range of h2", metavar = "character"),
   make_option("--cov", type = "character", default = NULL,
@@ -48,16 +44,6 @@ args_list <- list(
 opt_parser <- OptionParser(option_list=args_list)
 opt <- parse_args(opt_parser)
 
-# opt <- list(phenoPred = "/net/mulan/disk2/yasheng/comparisonProject/05_internal_c/pheno2/DBSLMM/hm3/summary_hm3_cross1_chr",
-#             phenoVal = "/net/mulan/disk2/yasheng/comparisonProject/03_subsample/02_pheno_c.txt,2",
-#             index = "r2",
-#             pvRange = "1e-04,1e-06,1e-08", 
-#             ldRange = "0.1,0.2,0.5",
-#             h2Range = "0.8"
-#   
-# )
-
-
 ## output the options
 cat("Acccept Options: \n")
 cat("--phenoPred: ", opt$phenoPred, "\n")
@@ -66,22 +52,10 @@ phenoNum <- unlist(strsplit(opt$phenoVal, ","))[2]
 cat("--phenoVal:  ", phenoVal, "\n")
 cat("--phenoNum:  ", phenoNum, "\n")
 cat("--index:     ", opt$index, "\n")
-# if (is.null(opt$pvRange) == F){
-#   cat("--pvRange:   ", opt$pvRange, "\n")
-#   pv_vec <- unlist(strsplit(opt$pvRange, ","))
-# }
-# if (is.null(opt$ldRange) == F){
-#   cat("--ldRange:   ", opt$ldRange, "\n")
-#   ld_vec <- unlist(strsplit(opt$ldRange, ","))
-# }
 if (is.null(opt$h2Range) == F){
   cat("--h2Range:   ", opt$h2Range, "\n")
   h2_vec <- unlist(strsplit(opt$h2Range, ","))
 }
-# if (length(pv_vec) == 1 & length(ld_vec) == 1){
-#   cat("ERROR: no tuning parameter!\n")
-#   q()
-# }
 
 if(is.null(opt$chr) == F){
   if (as.numeric(opt$chr) %in% c(1:22)){
@@ -108,24 +82,19 @@ na_idx <- which(!is.na(pheno))
 cat(paste0(length(na_idx), " samples involves in validation datasets.\n"))
 pheno_na <- pheno[na_idx]
 
-# ld_num <- length(ld_vec)
-# pv_num <- length(pv_vec)
 h2_num <- length(h2_vec)
 r2_res <- vector("numeric", h2_num)
 mse_res <- vector("numeric", h2_num)
 bs_res <- vector("numeric", h2_num)
 auc_res <- vector("numeric", h2_num)
 for (hh in 1: h2_num){
-  # for (rr in 1: ld_num){
-
+ 
       if (is.null(opt$chr) == F){
         pheno_chr1_str <- paste0(opt$phenoPred, opt$chr, "_pv", pv_vec[pp],
                                  "_r", ld_vec[rr], "_h2f", h2_vec[rr], ".profile")
         geno_pheno <- fread2(pheno_chr1_str, header = T)[, 6]
       } else {
         pheno_chr1_str <- paste0(opt$phenoPred, "_chr", 1, "_h2f", h2_vec[hh], ".profile")
-        # pheno_chr1_str <- paste0(opt$phenoPred, "_chr", 1, "_pv", pv_vec[pp],
-        #                          "_r", ld_vec[rr], ".profile")
         geno_pheno <- fread2(pheno_chr1_str, header = T)[, 6]
         for (chr in 2: 22){
           pheno_chr_str <- paste0(opt$phenoPred, "_chr", chr, "_h2f", h2_vec[hh], ".profile")
@@ -161,36 +130,24 @@ if (opt$index == "r2"){
   out_file <- data.frame(h2 = h2_vec,
                          R2 = r2_res, 
                          mse = mse_res)
-  if (which.max(out_file$R2) == which.max(out_file$mse)){
-    out_best <- out_file[-which.max(out_file$R2), c(1, 2)]
-    out_best <- out_file[which.max(out_file$R2), c(1, 2)]
-  } else {
-    out_best <- out_file[which.max(out_file$R2), c(1, 2)]
-  }
-  # cat("Using", opt$index, "the best combination: h2-threshold: ", out_best[1, 1], ".\n")
+  out_best <- out_file[which.max(out_file$R2), c(1, 2)]
 }
 if (opt$index == "mse"){
   out_file <- data.frame(pv = as.numeric(rep(pv_vec, each=ld_num)),
                          r2 = as.numeric(ld_vec),
                          mse = mse_res)
   out_best <- out_file[which.min(out_file$mse), ]
-  cat("Using", opt$index, "the best combination: p-threshold: ", out_best[1, 1],
-      " LD threshold: ", out_best[1, 2], ".\n")
 }
 if (opt$index == "auc"){
   out_file <- data.frame(h2 = h2_vec,
                          auc = auc_res)
   out_best <- out_file[which.max(out_file$auc), ]
-  # cat("Using", opt$index, "the best combination: p-threshold: ", out_best[1, 1],
-  #     " LD threshold: ", out_best[1, 2], ".\n")
 }
 if (opt$index == "bs"){
   out_file <- data.frame(pv = as.numeric(rep(pv_vec, each=ld_num)),
                          r2 = as.numeric(ld_vec),
                          bs = bs_res)
   out_best <- out_file[which.min(out_file$bs), ]
-  cat("Using", opt$index, "the best combination: p-threshold: ", out_best[1, 1],
-      " LD threshold: ", out_best[1, 2], ".\n")
 }
 
 ## output
