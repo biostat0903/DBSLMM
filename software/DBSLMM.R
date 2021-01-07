@@ -43,12 +43,6 @@ args_list <- list(
               help = "INPUT: the heritability of trait", metavar = "character"),
   make_option("--h2f", type = "numeric", default = NULL,
               help = "INPUT: the fold of heritability of trait", metavar = "character"),
-  make_option("--r2", type = "numeric", default = "0.2",
-              help = "INPUT: the cutoff of SNPs clumping (default: 0.2)", 
-              metavar = "character"),
-  make_option("--pv", type = "numeric", default = "1e-6",
-              help = "INPUT: the cutoff of SNPs pruning (default: 1e-6)", 
-              metavar = "character"),
   make_option("--type", type="character", default="d",
               help="INPUT: type of DBSLMM (default: default version)", 
               metavar="character"),
@@ -128,7 +122,7 @@ write.table(plink_summstats, file = paste0(opt$outPath, "plink_", prefix_file, "
 ## large effect clumping
 clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, 
                        " --silent --clump ", opt$outPath, "plink_", prefix_file, ".txt",
-                       " --clump-r2 ", opt$r2, " --clump-p1 ", opt$pv,
+                       " --clump-r2 ", 0.2, " --clump-p1 ", 1e-6,
                        " --clump-kb ", 1000, 
                        " --out ", opt$outPath, "/l_", prefix_file)
 system(clumping_cmd)
@@ -175,6 +169,4 @@ system(paste0(opt$dbslmm,
 system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
 system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
 system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
-# system(paste0("rm ", opt$outPath, "s_plink_", prefix_file, ".txt"))
 system(paste0("rm ", opt$outPath, "l_snp_", prefix_file, ".txt"))
-# system(paste0("rm ", opt$outPath, "s_snp_", prefix_file, ".txt"))
