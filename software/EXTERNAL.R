@@ -135,5 +135,5 @@ for (chr in 1: 22){
 r2_dat <- ldply(r2_list, function (a) a)
 r2 <- sum(r2_dat[, 1], na.rm = T)^2 / sum(r2_dat[, 2], na.rm = T)
 cat("r2: ", r2, "\n")
-write.table(r2, file = paste0(opt$oupath, "/r2.log"), 
+write.table(r2, file = paste0(opt$outpath, "/r2.log"), 
             row.names = F, col.names = F, quote = F)
