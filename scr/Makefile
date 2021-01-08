@@ -4,7 +4,6 @@
 
 # Set the file type
 OUTPUTD = dbslmm
-OUTPUTV = valid
 
 # Set the path of library
 ARMALIB = /net/mulan/home/yasheng/Cpp/arma/lib
@@ -14,15 +13,9 @@ CXX = g++
 
 # Set complier flags 
 CXXFLAG = -static -fopenmp -O3 -std=c++11 -lm -llapacke -llapack -lblas -Wall
-all: $(OUTPUTV) $(OUTPUTD)
+all: $(OUTPUTD)
 $(OUTPUTD): main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o
 	$(CXX) main_dbslmm.o dtpr.o dbslmm.o dbslmmfit.o -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
-$(OUTPUTV): main_valid.o validate.o dtpr.o 
-	$(CXX) main_valid.o validate.o dtpr.o -o $(OUTPUTV) $(CXXFLAG) -L $(ARMALIB)
-main_valid.o: main_valid.cpp
-	$(CXX) -c main_valid.cpp
-validate.o: validate.cpp validate.hpp 
-	$(CXX) -c validate.cpp $(CXXFLAG)
 main_dbslmm.o: main_dbslmm.cpp
 	$(CXX) -c main_dbslmm.cpp
 dbslmm.o: dbslmm.cpp dbslmm.hpp
