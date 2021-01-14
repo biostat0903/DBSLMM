@@ -41,7 +41,7 @@ args_list <- list(
               help = "INPUT: the number of SNPs in whole genome", metavar = "character"),
   make_option("--h2", type = "numeric", default = NULL,
               help = "INPUT: the heritability of trait", metavar = "character"),
-  make_option("--h2f", type = "numeric", default = NULL,
+  make_option("--h2f", type = "numeric", default = 1,
               help = "INPUT: the fold of heritability of trait", metavar = "character"),
   make_option("--type", type="character", default="d",
               help="INPUT: type of DBSLMM (default: default version)", 
