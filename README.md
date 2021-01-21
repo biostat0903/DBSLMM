@@ -7,6 +7,76 @@ Deterministic Bayesian Sparse Linear Mixed Model
 * fits the LMM, when the chromosome without any large effect SNPs
 * fits the external validation all by R code. 
 
+## Tutorial for DBSLMM (v0.2)
+In this version, we treat the heritability as the tuning parameter. We give the bash script for the DBSLMM-tuning as following:
+````bash
+PACK_DIR=/your/path/
+SPLITCHR=${PACK_DIR}DBSLMM/software/SPLITCHR.R
+DBSLMM=${PACK_DIR}DBSLMM/software/DBSLMM.R
+dbslmm=${PACK_DIR}DBSLMM/software/dbslmm
+TUNE=${PACK_DIR}DBSLMM/software/TUNE.R
+PLINK=${PACK_DIR}plink_1.9/plink
+
+## SNP number
+m=`cat ${summary_file_prefix}.assoc.txt | wc -l`
+
+## sample size of GWAS
+nobs=`sed -n "2p" ${summary_file_prefix}.assoc.txt | awk '{print $5}'`
+nmis=`sed -n "2p" ${summary_file_prefix}.assoc.txt | awk '{print $4}'`
+n=$(echo "${nobs}+${nmis}" | bc -l)
+
+## DBSLMM validation
+Rscript ${SPLITCHR} --summary ${summary_file_prefix}.assoc.txt
+for chr in `seq 1 22`
+do
+BLOCK=${PACK_DIR}DBSLMM/LDblock/chr${chr}
+summchr=${summary_file_prefix}_chr${chr}
+
+for h2f in 0.8 1 1.2
+do
+Rscript ${DBSLMM} --summary ${summchr}.assoc.txt --outPath ${outpath} --plink ${PLINK} --dbslmm ${dbslmm} --ref ${val_geno} \
+--n ${n} --type ${type} --nsnp ${m} --block ${BLOCK}.bed --h2 ${herit} --h2f ${h2f} --thread ${thread}
+
+summchr_prefix=`echo ${summchr##*/}`
+${PLINK} --silent --bfile ${val_geno} --score ${outpath}${summchr_prefix}_h2f${h2f}.dbslmm.txt 1 2 4 sum\
+          --out ${outpath}${summchr_prefix}_h2f${h2f}
+
+if [ -f "${outpath}${summchr_prefix}_h2f${h2f}.dbslmm.badsnps" ];then
+rm ${outpath}${summchr_prefix}_h2f${h2f}.dbslmm.badsnps
+fi
+rm ${outpath}${summchr_prefix}_h2f${h2f}.log
+if [ -f "${outpath}${summchr_prefix}_h2f${h2f}.nopred" ];then
+rm ${outpath}${summchr_prefix}_h2f${h2f}.nopred
+fi
+done
+done
+
+## DBSLMM selection 
+summchr_prefix2=`echo ${summchr_prefix%_*}`
+if [ ${cov} -eq 0 ]
+then 
+Rscript ${TUNE} --phenoPred ${outpath}${summchr_prefix2} --phenoVal ${val_pheno},${col} \
+       --h2Range 0.8,1,1.2 --index ${index}
+else 
+Rscript ${TUNE} --phenoPred ${InterPred} --phenoVal ${val_pheno},${col} \
+       --h2Range 0.8,1,1.2 --index ${index} --cov ${cov}
+fi
+
+## 
+hbest=`cat ${outpath}${summchr_prefix2}_hbest.${index}`
+for chr in `seq 1 22`
+do
+mv ${outpath}${summchr_prefix2}_chr${chr}_h2f${hbest}.dbslmm.txt ${outpath}${summchr_prefix2}_chr${chr}_best.dbslmm.txt
+rm ${outpath}${summchr_prefix2}_chr${chr}_h2f*
+done
+````
+The deault version is as following: 
+````bash
+Rscript ${DBSLMM} --summary ${summ}.assoc.txt --outPath ${outPath} --plink ${plink}\
+                  --dbslmm ${dbslmm} --ref ${ref} --n ${n} --nsnp ${m} --block ${blockf}.bed\
+                  --h2 ${h2} --thread ${thread}
+````
+
 ## Tutorial for external test only using summary statistics
 ### Make SNP correlation matrix
 We should use reference panel to construct SNP correlation matrix. You can treat [1000 Genome Project](https://www.internationalgenome.org/data#download) as reference panel. We also need the [block information](http://bitbucket.org/nygcresearch/ldetect-data). The code is `MAKELD.R`. 
