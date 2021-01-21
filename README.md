@@ -70,7 +70,7 @@ mv ${outpath}${summchr_prefix2}_chr${chr}_h2f${hbest}.dbslmm.txt ${outpath}${sum
 rm ${outpath}${summchr_prefix2}_chr${chr}_h2f*
 done
 ````
-The deault version is as following: 
+We recommend the folds of heritability are set as 0.8, 1 and 1. The setting of them is flexiable as your data. If you have other setting, you can e-mail me. I will change them. The deault version is as following: 
 ````bash
 Rscript ${DBSLMM} --summary ${summ}.assoc.txt --outPath ${outPath} --plink ${plink}\
                   --dbslmm ${dbslmm} --ref ${ref} --n ${n} --nsnp ${m} --block ${blockf}.bed\
