@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace arma;
 
+// estimate large and small effect
 int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
 				 vector <INFO> info_s, vector <INFO> info_l, int thread, 
                  vector <EFF> &eff_s, vector <EFF> &eff_l){
@@ -147,6 +148,89 @@ int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<i
 	return 0;
 }
 
+// estimate only small effect
+int DBSLMMFIT::est(int n_ref, int n_obs, double sigma_s, int num_block, vector<int> idv, string bed_str,
+				 vector <INFO> info_s, int thread, 
+				 vector <EFF> &eff_s){
+	
+	// get the maximum number of each block
+	int count_s = 0;
+	vec num_s = zeros<vec>(num_block); 
+	for (int i = 0; i < num_block; i++) {
+		for (size_t j = count_s; j < info_s.size(); j++) {
+			if(info_s[j].block == i){ 
+				num_s(i) += 1; 
+				count_s++;
+			}else{
+				break;
+			}
+		}
+	}
+	count_s = 0; // reset
+	
+	double len_s = num_s.max(); 
+	
+	int B = 0;
+	int B_MAX = 60;
+	if (num_block < 60){
+		B_MAX = num_block; 
+	}
+
+	// pseudo INFO
+	INFO info_pseudo; 
+	info_pseudo.snp = "rs"; 
+	info_pseudo.ps = 0; 
+	info_pseudo.pos = 0; 
+	info_pseudo.block = 0; 
+	info_pseudo.a1 = "Y"; 
+	info_pseudo.maf = 0; 
+	info_pseudo.z = 0; 
+	info_pseudo.P = 0; 
+	
+	// loop 
+	// vector < vector <INFO*> > info_s_Block(B_MAX, vector <INFO*> ((int)len_s));
+	vector < vector <INFO> > info_s_Block(B_MAX, vector <INFO> ((int)len_s));
+	vector < vector <EFF> > eff_s_Block(B_MAX, vector <EFF> ((int)len_s));
+	vector <int> num_s_vec;
+	for (int i = 0; i < num_block; ++i) {
+		// small effect SNP information
+		vector <INFO> info_s_block; 
+		for (size_t j = count_s; j < info_s.size(); j++) {
+			if(info_s[j].block == i){ 
+				info_s_block.push_back(info_s[j]);
+				count_s++;
+			}else{
+				break;
+			}
+		}
+		for (size_t k = 0; k < info_s_block.size(); k++)
+			// info_s_Block[B][k] = &info_s_block[k]; 
+			info_s_Block[B][k] = info_s_block[k]; 
+		num_s_vec.push_back((int)num_s(i));
+		
+		B++;
+		if (B == B_MAX || i + 1 == num_block) { // process the block of SNPs using multi-threading
+			
+			omp_set_num_threads(thread);
+#pragma omp parallel for schedule(dynamic)
+			for (int b = 0; b < B; b++){
+				calcBlock(n_ref, n_obs, sigma_s, idv, bed_str, info_s_Block[b],
+						  num_s_vec[b], eff_s_Block[b]);
+			}
+			// eff of small effect SNPs
+			for (int r = 0; r < B; r++) {
+				for (int l = 0; l < num_s_vec[r]; l++){
+					eff_s.push_back(eff_s_Block[r][l]);
+				}
+			}
+			B = 0;
+			num_s_vec.clear();
+		}
+	}
+	return 0;
+}
+
+// estimate large and small effect for each block
 int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
 						vector <INFO> info_s_block_full, vector <INFO> info_l_block_full, 
 						int num_s_block, int num_l_block, 
@@ -232,6 +316,56 @@ int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, 
 		eff_l_block[0].maf = eff_pseudo.maf;
 		eff_l_block[0].beta = eff_pseudo.beta;
 	}
+	// output small effect
+	for(int i = 0; i < num_s_block; i++) {
+		EFF eff_s; 
+		// eff_s.snp = info_s_block[i]->snp;
+		// eff_s.a1 = info_s_block[i]->a1;
+		// eff_s.maf = info_s_block[i]->maf;
+		eff_s.snp = info_s_block[i].snp;
+		eff_s.a1 = info_s_block[i].a1;
+		eff_s.maf = info_s_block[i].maf;
+		eff_s.beta = beta_s(i); 
+		eff_s_block[i] = eff_s;
+	}
+	return 0; 
+}
+
+// estimate only small effect for each block
+int DBSLMMFIT::calcBlock(int n_ref, int n_obs, double sigma_s, vector<int> idv, string bed_str, 
+						vector <INFO> info_s_block_full, int num_s_block, 
+						vector <EFF> &eff_s_block){
+	SNPPROC cSP;
+	IO cIO; 
+	ifstream bed_in(bed_str.c_str(), ios::binary);
+	
+	// INFO small effect SNPs 
+	// vector <INFO*> info_s_block(num_s_block);
+	// for (int i = 0; i < num_s_block; i++)
+		// info_s_block[i] = info_s_block_full[i];
+	vector <INFO> info_s_block(num_s_block);
+	for (int i = 0; i < num_s_block; i++)
+		info_s_block[i] = info_s_block_full[i];
+	// z_s
+	vec z_s = zeros<vec>(num_s_block); 
+	for (int i = 0; i < num_s_block; i++) 
+		// z_s(i) = info_s_block[i]->z;
+		z_s(i) = info_s_block[i].z;
+	// small effect genotype matrix
+	mat geno_s = zeros<mat>(n_ref, num_s_block);
+	for (int i = 0; i < num_s_block; ++i) {
+		vec geno = zeros<vec>(n_ref);
+		double maf = 0.0; 
+		// cIO.readSNPIm(info_s_block[i]->pos, n_ref, idv, bed_in, geno, maf);
+		cIO.readSNPIm(info_s_block[i].pos, n_ref, idv, bed_in, geno, maf);
+		cSP.nomalizeVec(geno);
+		geno_s.col(i) = geno;
+	}
+	
+	// estimation
+	vec beta_s = zeros<vec>(num_s_block); 
+	estBlock(n_ref, n_obs, sigma_s, geno_s, z_s, beta_s);
+	
 	// output small effect
 	for(int i = 0; i < num_s_block; i++) {
 		EFF eff_s; 
