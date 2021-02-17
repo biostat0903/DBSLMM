@@ -250,9 +250,13 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	vector <POS> inter_l;
 	bool badsnp_l[n_l] = {false}; 
 	cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
-	cout << "After filtering, " << inter_l.size() << " large effect SNPs are selected." << endl;
 	vector <INFO> info_l; 
-	int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
+	if (inter_l.size() != 0){
+		int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
+		cout << "After filtering, " << inter_l.size() << " large effect SNPs are selected." << endl;
+	} else {
+		cout << "After filtering, no large effect SNP is selected." << endl;
+	}
 	
 	// output badsnps
 	string badsnps_str = cPar.eff + ".badsnps"; 
@@ -269,32 +273,54 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	}
 	clearVector(summ_s);
 	
-	// fit model
-	vector <EFF> eff_s, eff_l; 
-	vector<int> idv(n_ref);
-	for (int i = 0; i < n_ref; i++) idv[i] = 1; 
-	string bed_str = cPar.r + ".bed";
-	double t_fitting = cIO.getWalltime();
-	double sigma_s = cPar.h / (double)cPar.nsnp;
-	cout << "Fitting model..." << endl;
-	cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l); 
-	double time_fitting = cIO.getWalltime() - t_fitting;
-	cout << "Fitting time: " << time_fitting << " seconds." << endl;
-
-	// output eff 
+	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
-	for (size_t i = 0; i < eff_l.size(); ++i) {
-		double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));
-		if (eff_l[i].snp != "rs" && isinf(beta_l_noscl) == false)
-			effFout << eff_l[i].snp << " " << eff_l[i].a1 << " " << eff_l[i].beta << " " << beta_l_noscl << " " << 1 << endl; 
+	if (inter_l.size() != 0){
+		// fit model
+		vector <EFF> eff_s, eff_l; 
+		vector<int> idv(n_ref);
+		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
+		string bed_str = cPar.r + ".bed";
+		double t_fitting = cIO.getWalltime();
+		double sigma_s = cPar.h / (double)cPar.nsnp;
+		cout << "Fitting model..." << endl;
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, info_l, cPar.t, eff_s, eff_l); 
+		double time_fitting = cIO.getWalltime() - t_fitting;
+		cout << "Fitting time: " << time_fitting << " seconds." << endl;
+
+		// output effect 
+		for (size_t i = 0; i < eff_l.size(); ++i) {
+			double beta_l_noscl = eff_l[i].beta / sqrt(2 * eff_l[i].maf * (1-eff_l[i].maf));
+			if (eff_l[i].snp != "rs" && isinf(beta_l_noscl) == false)
+				effFout << eff_l[i].snp << " " << eff_l[i].a1 << " " << eff_l[i].beta << " " << beta_l_noscl << " " << 1 << endl; 
+		}
+		
+		for (size_t i = 0; i < eff_s.size(); ++i) { 
+			double beta_s_noscl = eff_s[i].beta / sqrt(2 * eff_s[i].maf * (1-eff_s[i].maf));
+			if(eff_s[i].snp.size() != 0 && isinf(beta_s_noscl) == false)
+				effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
+		}
+		effFout.close();
+	} else {
+		// fit model
+		vector <EFF> eff_s; 
+		vector<int> idv(n_ref);
+		for (int i = 0; i < n_ref; i++) idv[i] = 1; 
+		string bed_str = cPar.r + ".bed";
+		double t_fitting = cIO.getWalltime();
+		double sigma_s = cPar.h / (double)cPar.nsnp;
+		cout << "Fitting model..." << endl;
+		cDBSF.est(n_ref, cPar.n, sigma_s, num_block_s, idv, bed_str, info_s, cPar.t, eff_s); 
+		double time_fitting = cIO.getWalltime() - t_fitting;
+		cout << "Fitting time: " << time_fitting << " seconds." << endl;
+
+		// output effect 
+		for (size_t i = 0; i < eff_s.size(); ++i) { 
+			double beta_s_noscl = eff_s[i].beta / sqrt(2 * eff_s[i].maf * (1-eff_s[i].maf));
+			if(eff_s[i].snp.size() != 0 && isinf(beta_s_noscl) == false)
+				effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
+		}
 	}
-	
-	for (size_t i = 0; i < eff_s.size(); ++i) { 
-		double beta_s_noscl = eff_s[i].beta / sqrt(2 * eff_s[i].maf * (1-eff_s[i].maf));
-		if(eff_s[i].snp.size() != 0 && isinf(beta_s_noscl) == false)
-			effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
-	}
-	effFout.close();
 	return;
 }
