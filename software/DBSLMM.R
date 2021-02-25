@@ -41,8 +41,14 @@ args_list <- list(
               help = "INPUT: the number of SNPs in whole genome", metavar = "character"),
   make_option("--h2", type = "numeric", default = NULL,
               help = "INPUT: the heritability of trait", metavar = "character"),
-  make_option("--h2f", type = "numeric", default = 1,
+  make_option("--h2f", type = "character", default = NULL,
               help = "INPUT: the fold of heritability of trait", metavar = "character"),
+  make_option("--r2", type = "numeric", default = "0.2",
+              help = "INPUT: the cutoff of SNPs clumping (default: 0.2)", 
+              metavar = "character"),
+  make_option("--pv", type = "numeric", default = "1e-6",
+              help = "INPUT: the cutoff of SNPs pruning (default: 1e-6)", 
+              metavar = "character"),
   make_option("--type", type="character", default="d",
               help="INPUT: type of DBSLMM (default: default version)", 
               metavar="character"),
@@ -100,6 +106,7 @@ if (!file.exists(opt$block)){
 }
 
 start <- proc.time()
+
 ## gemma format to plink format
 s <- strsplit(opt$summary, "\\/")[[1]]
 s <- s[length(s)]
@@ -107,10 +114,7 @@ prefix_file <- strsplit(s, "\\.")[[1]]
 len_prefix_file <- length(prefix_file)
 prefix_file <- paste(prefix_file[-c((len_prefix_file-1):len_prefix_file)], collapse = ".")
 
-if (opt$type != "d"){
-  prefix_file <- paste0(prefix_file, "_h2f", opt$h2f)
-}
-
+## summary statistics
 summstats <- fread2(opt$summ)
 t <- summstats[, 9]/summstats[, 10]
 p_val <- ifelse(t < 0, pnorm(t), pnorm(t, lower.tail = F))*2
@@ -122,11 +126,10 @@ write.table(plink_summstats, file = paste0(opt$outPath, "plink_", prefix_file, "
 ## large effect clumping
 clumping_cmd <- paste0(opt$plink, " --bfile ", opt$ref, 
                        " --silent --clump ", opt$outPath, "plink_", prefix_file, ".txt",
-                       " --clump-r2 ", 0.2, " --clump-p1 ", 1e-6,
+                       " --clump-r2 ", opt$r2, " --clump-p1 ", opt$pv,
                        " --clump-kb ", 1000, 
                        " --out ", opt$outPath, "/l_", prefix_file)
 system(clumping_cmd)
-
 if (!file.exists(paste0(opt$outPath, "l_", prefix_file, ".clumped"))){
   cat ("Using", opt$pv, ", no significant SNPs. The most significant SNPs are regarded as fixed effect.\n")
   sort_cmd <- paste0("sort -k 11 -n ", opt$summary, " | head -n 1 > ",
@@ -142,6 +145,7 @@ if (!file.exists(paste0(opt$outPath, "l_", prefix_file, ".clumped"))){
   cat ("Using", opt$pv, ",", length(lsnp), "SNPs are regarded as fixed effect.\n")
   lsnp_p <- paste(lsnp, collapse="|")
 }
+
 l_cmd <- paste0("grep -w -E -a '", lsnp_p, "' ", opt$summary, " > ",
                 opt$outPath, "/l_", prefix_file, ".txt")
 s_cmd1 <- paste0("grep -w -E -a -v '", lsnp_p, "' ", opt$summary, " > ",
@@ -154,18 +158,37 @@ end <- proc.time()
 cat("Clumping time: ", end[3]-start[3], "s.\n")
 
 ## dbslmm
-h2d <- as.numeric(opt$h2f) * as.numeric(opt$h2)
-system(paste0(opt$dbslmm,
-              " -s ",      opt$outPath, "s_", prefix_file, ".txt",
-              " -l ",      opt$outPath, "l_", prefix_file, ".txt",
-              " -r ",      opt$ref,
-              " -n ",      opt$n,
-              " -mafMax ", opt$mafMax,
-              " -nsnp ",   opt$nsnp,
-              " -b ",      opt$block,
-              " -h ",      h2d,
-              " -t ",      opt$thread,
-              " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
+if(opt$type == "d"){
+  system(paste0(opt$dbslmm,
+                " -s ",      opt$outPath, "s_", prefix_file, ".txt",
+                " -l ",      opt$outPath, "l_", prefix_file, ".txt",
+                " -r ",      opt$ref,
+                " -n ",      opt$n,
+                " -mafMax ", opt$mafMax,
+                " -nsnp ",   opt$nsnp,
+                " -b ",      opt$block,
+                " -h ",      h2d,
+                " -t ",      opt$thread,
+                " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
+
+} else {
+  h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
+  for (hh in h2_vec) {
+    h2d <- opt$h2*hh
+    system(paste0(opt$dbslmm,
+                  " -s ",      opt$outPath, "s_", prefix_file, ".txt",
+                  " -l ",      opt$outPath, "l_", prefix_file, ".txt",
+                  " -r ",      opt$ref,
+                  " -n ",      opt$n,
+                  " -mafMax ", opt$mafMax,
+                  " -nsnp ",   opt$nsnp,
+                  " -b ",      opt$block,
+                  " -h ",      h2d,
+                  " -t ",      opt$thread,
+                  " -eff ",    opt$outPath, prefix_file, "_h2f", hh, ".dbslmm"))
+  }
+}
+
 system(paste0("rm ", opt$outPath, "plink_", prefix_file, ".txt"))
 system(paste0("rm ", opt$outPath, "l_", prefix_file, "*"))
 system(paste0("rm ", opt$outPath, "s_", prefix_file, "*"))
