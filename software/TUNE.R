@@ -88,7 +88,8 @@ mse_res <- vector("numeric", h2_num)
 bs_res <- vector("numeric", h2_num)
 auc_res <- vector("numeric", h2_num)
 for (hh in 1: h2_num){
- 
+  # for (rr in 1: ld_num){
+
       if (is.null(opt$chr) == F){
         pheno_chr1_str <- paste0(opt$phenoPred, opt$chr, "_pv", pv_vec[pp],
                                  "_r", ld_vec[rr], "_h2f", h2_vec[rr], ".profile")
@@ -98,8 +99,6 @@ for (hh in 1: h2_num){
         geno_pheno <- fread2(pheno_chr1_str, header = T)[, 6]
         for (chr in 2: 22){
           pheno_chr_str <- paste0(opt$phenoPred, "_chr", chr, "_h2f", h2_vec[hh], ".profile")
-          # pheno_chr_str <- paste0(opt$phenoPred, "_chr", chr, "_pv", pv_vec[pp],
-          #                         "_r", ld_vec[rr], ".profile")
           pred_chr <- fread2(pheno_chr_str, header = T)[, 6]
           geno_pheno <- geno_pheno + pred_chr
         }
@@ -118,7 +117,6 @@ for (hh in 1: h2_num){
           coef_lm <- coef(lm(pheno~cov))
           geno_pheno <- geno_pheno + cbind(1, cov) %*% coef_lm
         } 
-        
         r2_res[hh] <- cor(geno_pheno[na_idx], pheno[na_idx])^2
         mse_res[hh] <- mse(geno_pheno[na_idx], pheno[na_idx])
       }
@@ -128,26 +126,28 @@ for (hh in 1: h2_num){
 ## selection
 if (opt$index == "r2"){
   out_file <- data.frame(h2 = h2_vec,
-                         R2 = r2_res, 
-                         mse = mse_res)
+                         R2 = r2_res)
   out_best <- out_file[which.max(out_file$R2), c(1, 2)]
+  cat("Using", opt$index, "the best combination: h2-threshold: ", out_best[1, 1], ".\n")
 }
 if (opt$index == "mse"){
   out_file <- data.frame(pv = as.numeric(rep(pv_vec, each=ld_num)),
                          r2 = as.numeric(ld_vec),
                          mse = mse_res)
   out_best <- out_file[which.min(out_file$mse), ]
+  cat("Using", opt$index, "the best combination: h2-threshold: ", out_best[1, 1], ".\n")
 }
 if (opt$index == "auc"){
   out_file <- data.frame(h2 = h2_vec,
                          auc = auc_res)
   out_best <- out_file[which.max(out_file$auc), ]
+  cat("Using", opt$index, "the best combination: h2-threshold: ", out_best[1, 1], ".\n")
 }
 if (opt$index == "bs"){
-  out_file <- data.frame(pv = as.numeric(rep(pv_vec, each=ld_num)),
-                         r2 = as.numeric(ld_vec),
+  out_file <- data.frame(pv = h2_vec,
                          bs = bs_res)
   out_best <- out_file[which.min(out_file$bs), ]
+  cat("Using", opt$index, "the best combination: h2-threshold: ", out_best[1, 1], ".\n")
 }
 
 ## output
