@@ -16,7 +16,7 @@ while getopts "D:p:B:s:H:m:n:G:P:l:T:c:i:t:o:" opt; do
     ;;
     n) n="$OPTARG"
     ;;
-    G) val_geno_prefix="$OPTARG"
+    G) val_geno="$OPTARG"
     ;;
     P) val_pheno="$OPTARG"
     ;;
@@ -42,7 +42,7 @@ printf "\033[33mArgument plink is %s  \033[0m\n" "$plink"
 printf "\033[33mArgument block_prefix is %s  \033[0m\n" "$block_prefix"
 printf "\033[33mArgument summary_file_prefix is %s  \033[0m\n" "$summary_file_prefix"
 printf "\033[33mArgument herit is %s  \033[0m\n" "$herit"
-printf "\033[33mArgument val_geno_prefix is %s  \033[0m\n" "$val_geno_prefix"
+printf "\033[33mArgument val_geno is %s  \033[0m\n" "$val_geno"
 printf "\033[33mArgument valid_pheno is %s  \033[0m\n" "$val_pheno"
 printf "\033[33mArgument col is %s  \033[0m\n" "$col"
 printf "\033[33mArgument type is %s  \033[0m\n" "$type"
@@ -56,9 +56,13 @@ printf "\033[33mArgument index is %s  \033[0m\n" "$index"
 printf "\033[33mArgument thread is %s  \033[0m\n" "$thread"
 printf "\033[33mArgument outpath is %s  \033[0m\n" "$outpath"
 
+# DBSLMM software
 DBSLMM=${software_path}DBSLMM/software/DBSLMM.R
 TUNE=${software_path}DBSLMM/software/TUNE.R
-dbslmm=${software_path}/DBSLMM/scr/dbslmm
+dbslmm=${software_path}/DBSLMM/software/dbslmm
+
+# split to chromosome
+Rscript ${SPLIT} --summary ${summary_file_prefix}.assoc.txt
 
 # DBSLMM: tuning version
 if [[ "$type" == "t" ]]
@@ -67,8 +71,7 @@ for chr in `seq 1 22`
 do
 
 BLOCK=${block_prefix}${chr}
-summchr=${summary_file_prefix}${chr}
-val_geno=${val_geno_prefix}${chr}
+summchr=${summary_file_prefix}_chr${chr}
 Rscript ${DBSLMM} --summary ${summchr}.assoc.txt --outPath ${outpath} --plink ${plink}\
                   --dbslmm ${dbslmm} --ref ${val_geno} --n ${n} --type ${type} --nsnp ${nsnp} --block ${BLOCK}.bed\
                   --h2 ${herit} --h2f 0.8,1,1.2 --thread ${thread}
@@ -114,7 +117,7 @@ for chr in `seq 1 22`
 do
 BLOCK=${block_prefix}${chr}
 summchr=${summary_file_prefix}${chr}
-val_geno=${val_geno_prefix}${chr}
+val_geno=${val_geno}${chr}
 Rscript ${DBSLMM} --summary ${summchr}.assoc.txt --outPath ${outpath} --plink ${plink}\
                   --dbslmm ${dbslmm} --ref ${val_geno} --n ${n} --nsnp ${nsnp} --block ${BLOCK}.bed\
                   --h2 ${herit} --thread ${thread}
