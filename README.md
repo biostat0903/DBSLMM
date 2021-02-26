@@ -2,10 +2,45 @@
 Deterministic Bayesian Sparse Linear Mixed Model
 
 ## Update log
+### v0.21
+* fits DBSLMM in different heritabiliies with one clumping
+* uses a script to make the usage of DBSLMM-tuning version more easier.
 ### v0.2 
 * validates the flods of heritability: 0.8, 1 and 1.2
 * fits the LMM, when the chromosome without any large effect SNPs
 * fits the external validation all by R code. 
+
+## Tutorial for DBSLMM (v0.21)
+In this version, we use `DBSLMM_script.sh` to make the usage of DBSLMM more easier. Different to past version, v0.21 needs `valg` to be the whole genome plink file.
+````bash
+PACK_DIR=/your/path/
+SPLITCHR=${PACK_DIR}DBSLMM/software/SPLITCHR.R
+PLINK=${PACK_DIR}plink_1.9/plink
+DBSLMM=${PACK_DIR}DBSLMM/DBSLMM_script.sh
+
+# Split into chromosome
+DATADIR=/your/path/example_data/
+summ=${DATADIR}all/summary
+Rscript ${SPLITCHR} --summary ${summ}.assoc.txt
+
+# Set parameters
+valg=${DATADIR}val/valid
+valp=${DATADIR}val/valid_pheno.txt
+BLOCK=${PACK_DIR}DBSLMM/LDblock/chr
+herit=0.1
+index=r2
+thread=1
+outpath=${DATADIR}output/
+
+# DBSLMM tuning version (without covariates)
+type=t
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m 1062150 -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+
+# DBSLMM determinitic version (without covariates)
+type=d
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m 1062150 -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+````
+If the user wants to change the fold of heritability, you can revise the row 77, 78, 98 and 101.
 
 ## Tutorial for DBSLMM (v0.2)
 In this version, we treat the heritability as the tuning parameter. We give the bash script for the DBSLMM-tuning as following:
