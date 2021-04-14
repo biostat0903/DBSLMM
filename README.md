@@ -34,11 +34,11 @@ outpath=${DATADIR}output/
 
 # DBSLMM tuning version (without covariates)
 type=t
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m 1062150 -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
 # DBSLMM determinitic version (without covariates)
 type=d
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m 1062150 -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 ````
 If the user wants to change the fold of heritability, you can revise the row 77, 78, 98 and 101.
 You can regard the output of snp number from `ldsc` as the snp number of `DBSLMM`.
