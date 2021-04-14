@@ -27,7 +27,7 @@ Rscript ${SPLITCHR} --summary ${summ}.assoc.txt
 valg=${DATADIR}val/valid
 valp=${DATADIR}val/valid_pheno.txt
 BLOCK=${PACK_DIR}DBSLMM/LDblock/chr
-herit=0.1
+herit=/your/path/herit.log
 index=r2
 thread=1
 outpath=${DATADIR}output/
