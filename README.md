@@ -41,7 +41,7 @@ type=d
 sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 ````
 If the user wants to change the fold of heritability, you can revise the row 77, 78, 98 and 101.
-You can regard the output of snp number from `ldsc` as the snp number of `DBSLMM`.
+You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
 
 ## Tutorial for DBSLMM (v0.2)
 In this version, we treat the heritability as the tuning parameter. We give the bash script for the DBSLMM-tuning as following:
