@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "D:p:B:s:H:m:n:G:P:l:T:c:i:t:o:" opt; do
+while getopts "D:p:B:s:H:n:G:P:l:T:c:i:t:o:" opt; do
   case $opt in
     D) software_path="$OPTARG"
     ;;
@@ -12,11 +12,9 @@ while getopts "D:p:B:s:H:m:n:G:P:l:T:c:i:t:o:" opt; do
     ;;
     H) herit="$OPTARG"
     ;;
-    m) nsnp="$OPTARG"
-    ;;
     n) n="$OPTARG"
     ;;
-    G) val_geno="$OPTARG"
+    G) val_geno_prefix="$OPTARG"
     ;;
     P) val_pheno="$OPTARG"
     ;;
@@ -42,13 +40,12 @@ printf "\033[33mArgument plink is %s  \033[0m\n" "$plink"
 printf "\033[33mArgument block_prefix is %s  \033[0m\n" "$block_prefix"
 printf "\033[33mArgument summary_file_prefix is %s  \033[0m\n" "$summary_file_prefix"
 printf "\033[33mArgument herit is %s  \033[0m\n" "$herit"
-printf "\033[33mArgument val_geno is %s  \033[0m\n" "$val_geno"
+printf "\033[33mArgument val_geno_prefix is %s  \033[0m\n" "$val_geno_prefix"
 printf "\033[33mArgument valid_pheno is %s  \033[0m\n" "$val_pheno"
 printf "\033[33mArgument col is %s  \033[0m\n" "$col"
 printf "\033[33mArgument type is %s  \033[0m\n" "$type"
 if [ -z "${cov}" ]; then 
 cov='N'
-printf "\033[33mArgument cov is %s  \033[0m\n" "$cov"
 else 
 printf "\033[33mArgument cov is %s  \033[0m\n" "$cov"
 fi
@@ -63,6 +60,10 @@ dbslmm=${software_path}/DBSLMM/software/dbslmm
 
 # split to chromosome
 Rscript ${SPLIT} --summary ${summary_file_prefix}.assoc.txt
+
+# LDSC: heritability and number of SNP
+nsnp=`sed -n '24p' ${herit} | cut -d ',' -f 2 | cut -d ' ' -f 2`
+h2=`sed -n '26p' ${herit} | cut -d ":" -f 2 | cut -d '(' -f 1 | cut -d " " -f 2`
 
 # DBSLMM: tuning version
 if [[ "$type" == "t" ]]
