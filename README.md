@@ -40,7 +40,7 @@ sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 30
 type=d
 sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 ````
-If the user wants to change the fold of heritability, you can revise the row 77, 78, 98 and 101.
+If the user wants to change the fold of heritability, you can revise the row 78, 79, 99 and 102.
 You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
 
 ## Tutorial for DBSLMM (v0.2)
