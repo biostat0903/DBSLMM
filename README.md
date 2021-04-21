@@ -42,6 +42,7 @@ sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 30
 ````
 If the user wants to change the fold of heritability, you can revise the row 78, 79, 99 and 102.
 You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
+The download link of `dbslmm` is <https://drive.google.com/file/d/1TRqPozXtenDW9buQgzFQ2KSxxWhl7dNn/view?usp=sharing>.
 
 ## Tutorial for DBSLMM (v0.2)
 In this version, we treat the heritability as the tuning parameter. We give the bash script for the DBSLMM-tuning as following:
