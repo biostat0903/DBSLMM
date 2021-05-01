@@ -3,7 +3,6 @@ Deterministic Bayesian Sparse Linear Mixed Model
 
 ## Update log
 ### v0.3
-* fixes the bug of allele match
 * fixes the bug of model fiting
 ### v0.21
 * fits DBSLMM in different heritabiliies with one clumping
