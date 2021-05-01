@@ -55,7 +55,7 @@ fi
 printf "\033[33mArgument thread is %s  \033[0m\n" "$thread"
 printf "\033[33mArgument outpath is %s  \033[0m\n" "$outpath"
 
-DBSLMM=${software_path}DBSLMM/software/DBSLMM1.R
+DBSLMM=${software_path}DBSLMM/software/DBSLMM.R
 TUNE=${software_path}DBSLMM/software/TUNE.R
 dbslmm=${software_path}/DBSLMM/scr/dbslmm
 
