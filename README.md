@@ -13,7 +13,7 @@ Deterministic Bayesian Sparse Linear Mixed Model
 * fits the external validation all by R code. 
 
 ## Tutorial for DBSLMM (v0.3)
-In this version, we use `DBSLMM_script.sh` to make the usage of DBSLMM more easier. Different to past version, v0.21 needs `valg` to be the whole genome plink file.
+In this version, we use `DBSLMM_script.sh` to make the usage of DBSLMM more easier. v0.3 needs `valg` to be the whole genome plink file. By parameter `-m`, we give two different model assumptions, including DBSLMM and LMM. Specially, LMM model assumption only have the default version, because it do not need to tune `-h2f`.
 ````bash
 PACK_DIR=/your/path/
 SPLITCHR=${PACK_DIR}DBSLMM/software/SPLITCHR.R
@@ -36,13 +36,20 @@ outpath=${DATADIR}output/
 
 # DBSLMM tuning version (without covariates)
 type=t
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+model=DBSLMM
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
 # DBSLMM determinitic version (without covariates)
 type=d
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -n 300 -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+model=DBSLMM
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+
+# LMM version
+type=d
+model=LMM
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 ````
-If the user wants to change the fold of heritability, you can revise the row 78, 79, 99 and 102.
+If the user wants to change the fold of heritability, you can revise the setting in `DBSLMM_script.sh`.
 You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
 The download link of `dbslmm` is <https://drive.google.com/file/d/1TRqPozXtenDW9buQgzFQ2KSxxWhl7dNn/view?usp=sharing>.
 
