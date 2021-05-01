@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts "D:p:B:s:H:n:G:P:l:T:c:i:t:o:" opt; do
+while getopts "D:p:B:s:m:H:n:G:P:l:T:c:i:t:o:" opt; do
   case $opt in
     D) software_path="$OPTARG"
     ;;
@@ -10,17 +10,19 @@ while getopts "D:p:B:s:H:n:G:P:l:T:c:i:t:o:" opt; do
     ;;
     s) summary_file_prefix="$OPTARG"
     ;;
+    m) model="$OPTARG"
+    ;;
+    T) type="$OPTARG"
+    ;;
     H) herit="$OPTARG"
     ;;
-    n) n="$OPTARG"
-    ;;
     G) val_geno_prefix="$OPTARG"
+    ;;
+    o) outpath="$OPTARG"
     ;;
     P) val_pheno="$OPTARG"
     ;;
     l) col="$OPTARG"
-    ;;
-    T) type="$OPTARG"
     ;;
     c) cov="$OPTARG"
     ;;
@@ -28,28 +30,29 @@ while getopts "D:p:B:s:H:n:G:P:l:T:c:i:t:o:" opt; do
     ;;
     t) thread="$OPTARG"
     ;;
-    o) outpath="$OPTARG"
-    ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
   esac
 done
 
+
 printf "\033[33mArgument software_path is %s  \033[0m\n" "$software_path"
 printf "\033[33mArgument plink is %s  \033[0m\n" "$plink"
 printf "\033[33mArgument block_prefix is %s  \033[0m\n" "$block_prefix"
 printf "\033[33mArgument summary_file_prefix is %s  \033[0m\n" "$summary_file_prefix"
+printf "\033[33mArgument model is %s  \033[0m\n" "$model"
 printf "\033[33mArgument herit is %s  \033[0m\n" "$herit"
 printf "\033[33mArgument val_geno_prefix is %s  \033[0m\n" "$val_geno_prefix"
+printf "\033[33mArgument type is %s  \033[0m\n" "$type"
+if [[ "${type}" == "t" ]]
+then
 printf "\033[33mArgument valid_pheno is %s  \033[0m\n" "$val_pheno"
 printf "\033[33mArgument col is %s  \033[0m\n" "$col"
-printf "\033[33mArgument type is %s  \033[0m\n" "$type"
-if [ -z "${cov}" ]; then 
-cov='N'
-else 
+printf "\033[33mArgument index is %s  \033[0m\n" "$index"
+fi
+if [ -n "$cov" ]; then 
 printf "\033[33mArgument cov is %s  \033[0m\n" "$cov"
 fi
-printf "\033[33mArgument index is %s  \033[0m\n" "$index"
 printf "\033[33mArgument thread is %s  \033[0m\n" "$thread"
 printf "\033[33mArgument outpath is %s  \033[0m\n" "$outpath"
 
@@ -73,6 +76,9 @@ do
 
 BLOCK=${block_prefix}${chr}
 summchr=${summary_file_prefix}_chr${chr}
+nobs=`sed -n "2p" ${summchr}.assoc.txt.gz | awk '{print $5}'`
+nmis=`sed -n "2p" ${summchr}.assoc.txt.gz | awk '{print $4}'`
+n=$(echo "${nobs}+${nmis}" | bc -l)
 Rscript ${DBSLMM} --summary ${summchr}.assoc.txt --outPath ${outpath} --plink ${plink}\
                   --dbslmm ${dbslmm} --ref ${val_geno} --n ${n} --type ${type} --nsnp ${nsnp} --block ${BLOCK}.bed\
                   --h2 ${herit} --h2f 0.8,1,1.2 --thread ${thread}
@@ -119,6 +125,9 @@ do
 BLOCK=${block_prefix}${chr}
 summchr=${summary_file_prefix}${chr}
 val_geno=${val_geno}${chr}
+nobs=`sed -n "2p" ${summchr}.assoc.txt | awk '{print $5}'`
+nmis=`sed -n "2p" ${summchr}.assoc.txt | awk '{print $4}'`
+n=$(echo "${nobs}+${nmis}" | bc -l)
 Rscript ${DBSLMM} --summary ${summchr}.assoc.txt --outPath ${outpath} --plink ${plink}\
                   --dbslmm ${dbslmm} --ref ${val_geno} --n ${n} --nsnp ${nsnp} --block ${BLOCK}.bed\
                   --h2 ${herit} --thread ${thread}
