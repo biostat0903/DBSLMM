@@ -146,9 +146,9 @@ if (!file.exists(paste0(opt$outPath, "l_", prefix_file, ".clumped"))){
   lsnp_p <- paste(lsnp, collapse="|")
 }
 
-l_cmd <- paste0("grep -w -E -a '", lsnp_p, "' ", opt$summary, " > ",
+l_cmd <- paste0("grep -w -E -a '", lsnp_p, "' ", opt$summary, " | sort -n -k 3 > ",
                 opt$outPath, "/l_", prefix_file, ".txt")
-s_cmd1 <- paste0("grep -w -E -a -v '", lsnp_p, "' ", opt$summary, " > ",
+s_cmd1 <- paste0("grep -w -E -a -v '", lsnp_p, "' ", opt$summary,  " | sort -n -k 3 > ",
                  opt$outPath, "/s_", prefix_file, ".txt")
 s_cmd2 <- paste0("sed -i '1d' ", opt$outPath, "/s_", prefix_file, ".txt")
 system(l_cmd)
