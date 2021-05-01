@@ -167,7 +167,7 @@ if(opt$type == "d"){
                 " -mafMax ", opt$mafMax,
                 " -nsnp ",   opt$nsnp,
                 " -b ",      opt$block,
-                " -h ",      h2d,
+                " -h ",      opt$h2,
                 " -t ",      opt$thread,
                 " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
 
