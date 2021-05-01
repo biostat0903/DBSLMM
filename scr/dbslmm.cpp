@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 DBSLMM::DBSLMM(void) :
-	version("0.2"), date("07/25/2019"), year("2019")
+	version("0.3"), date("05/01/2021"), year("2021")
 {}
 
 void DBSLMM::printHeader(void)
@@ -55,7 +55,7 @@ void DBSLMM::printHelp(void) {
 	cout << " -r        [filename]  " << " specify input the bfile of reference data." << endl;
 	cout << " -n        [num]       " << " specify input the sample size of the summary data." << endl;
 	cout << " -mafMax   [num]       " << " specify input the maximium of the difference between reference panel and summary data." << endl;
-	cout << " -nsnp     [filename]  " << " specify input the number of snp." << endl;
+	cout << " -nsnp     [num]  " << " specify input the number of snp." << endl;
 	cout << " -b        [num]       " << " specify input the block information." << endl;
 	cout << " -h        [num]       " << " specify input the heritability." << endl;
 	cout << " -t        [filename]  " << " specify input thread." << endl;
@@ -159,38 +159,34 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	DBSLMMFIT cDBSF;
 
 	// input check
-	cout << "Options: " << endl;
-	cout << "-s:      " << cPar.s << endl;
-	cout << "-l:      " << cPar.l << endl;
-	cout << "-r:      " << cPar.r << endl;
-	cout << "-nsnp:   " << cPar.nsnp << endl;
-	cout << "-n:      " << cPar.n << endl;
-	cout << "-mafMax: " << cPar.mafMax << endl;
-	cout << "-b:      " << cPar.b << endl;
-	cout << "-h:      " << cPar.h << endl;
-	cout << "-t:      " << cPar.t << endl;
-	cout << "-eff:    " << cPar.eff << endl;
+	// cout << "Options: " << endl;
+	// cout << "-s:      " << cPar.s << endl;
+	// cout << "-l:      " << cPar.l << endl;
+	// cout << "-r:      " << cPar.r << endl;
+	// cout << "-nsnp:   " << cPar.nsnp << endl;
+	// cout << "-n:      " << cPar.n << endl;
+	// cout << "-mafMax: " << cPar.mafMax << endl;
+	// cout << "-b:      " << cPar.b << endl;
+	// cout << "-h:      " << cPar.h << endl;
+	// cout << "-t:      " << cPar.t << endl;
+	// cout << "-eff:    " << cPar.eff << endl;
 	
 	// check files
 	string ref_fam_str = cPar.r + ".fam";
-	ifstream seffStream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
+	ifstream seffstream(cPar.s.c_str()), leffstream(cPar.l.c_str()), reffstream(ref_fam_str.c_str()), beffstream(cPar.b.c_str());
 	if (cPar.s.size() == 0) {
 		cerr << "ERROR: -s is no parameter!" << endl;
-		exit(1);
-	}
-	if (cPar.l.size() == 0) {
-		cerr << "ERROR: -l is no parameter!" << endl;
 		exit(1);
 	}
 	if (!beffstream) {
 		cerr << "ERROR: " << cPar.b << " dose not exist!" << endl;
 		exit(1);
 	}
-	if (!seffStream) {
+	if (!seffstream) {
 		cerr << "ERROR: " << cPar.s << " dose not exist!" << endl;
 		exit(1);
 	}
-	if (!reffstream || cPar.l.size() == 0) {
+	if (!reffstream) {
 		cerr << "ERROR: " << cPar.r << " dose not exist!" << endl;
 		exit(1);
 	}
@@ -242,37 +238,42 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 	cout << "After filtering, " << inter_s.size() << " small effect SNPs are selected." << endl;
 	vector <INFO> info_s; 
 	int num_block_s = cSP.addBlock(inter_s, block_dat, info_s); 
-
-	// input large effect summary data
-	cout << "Reading summary data of large effect SNPs from [" << cPar.l << "]" << endl;
-	vector <SUMM> summ_l;
-	int n_l = cIO.readSumm(cPar.l, separate, summ_l);
-	vector <POS> inter_l;
-	bool badsnp_l[n_l] = {false}; 
-	cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
-	vector <INFO> info_l; 
-	if (inter_l.size() != 0){
-		int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
-		cout << "After filtering, " << inter_l.size() << " large effect SNPs are selected." << endl;
-	} else {
-		cout << "After filtering, no large effect SNP is selected." << endl;
-	}
 	
-	// output badsnps
+	// output samll effect badsnps 
 	string badsnps_str = cPar.eff + ".badsnps"; 
 	ofstream badsnpsFout(badsnps_str.c_str());
-	for (size_t i = 0; i < summ_l.size(); ++i) {
-		if (badsnp_l[i] == false){
-			badsnpsFout << summ_l[i].snp << " " << 1 << endl;
-		}
-	}
-	clearVector(summ_l);
 	for (size_t i = 0; i < summ_s.size(); ++i) {
 		if (badsnp_s[i] == false)
 			badsnpsFout << summ_s[i].snp << " " << 0 << endl;
 	}
 	clearVector(summ_s);
-	
+
+	// large effect
+	vector <POS> inter_l;
+	vector <INFO> info_l; 
+	if (leffstream) {
+		// input large effect summary data
+		cout << "Reading summary data of large effect SNPs from [" << cPar.l << "]" << endl;
+		vector <SUMM> summ_l;
+		int n_l = cIO.readSumm(cPar.l, separate, summ_l);
+		// vector <POS> inter_l;
+		bool badsnp_l[n_l] = {false};
+		cSP.matchRef(summ_l, ref_bim, inter_l, cPar.mafMax, badsnp_l);
+		if (inter_l.size() != 0){
+			int num_block_l = cSP.addBlock(inter_l, block_dat, info_l); 
+			cout << "After filtering, " << inter_l.size() << " large effect SNPs are selected." << endl;
+		} else {
+			cout << "After filtering, no large effect SNP is selected." << endl;
+		}
+		// output large effect badsnps 
+		for (size_t i = 0; i < summ_l.size(); ++i) {
+			if (badsnp_l[i] == false){
+				badsnpsFout << summ_l[i].snp << " " << 1 << endl;
+			}
+		}
+		clearVector(summ_l);
+	}
+
 	// output stream
 	string eff_str = cPar.eff + ".txt"; 
 	ofstream effFout(eff_str.c_str());
@@ -302,7 +303,8 @@ void DBSLMM::BatchRun(PARAM &cPar) {
 				effFout << eff_s[i].snp << " " << eff_s[i].a1 << " " << eff_s[i].beta << " " << beta_s_noscl << " " << 0 << endl; 
 		}
 		effFout.close();
-	} else {
+	}
+	if (inter_l.size() == 0 || !leffstream){
 		// fit model
 		vector <EFF> eff_s; 
 		vector<int> idv(n_ref);
