@@ -38,19 +38,22 @@ type=t
 valg=${DATADIR}val/valid
 valp=${DATADIR}val/valid_pheno.txt
 model=DBSLMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp}\
+             -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
 # DBSLMM determinitic version (without covariates)
 type=d
 refp=${DATADIR}val/val
 model=DBSLMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp}\
+             -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
 # LMM version
 type=d
 refp=${DATADIR}val/val
 model=LMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp}\
+             -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 ````
 If the user wants to change the fold of heritability, you can revise the setting in `DBSLMM_script.sh`.
 You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
