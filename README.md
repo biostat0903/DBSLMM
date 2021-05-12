@@ -1,5 +1,6 @@
 # DBSLMM
 Deterministic Bayesian Sparse Linear Mixed Model
+There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. In our experience, the tuning version may work more accurately than the deterministic version.
 
 ## Update log
 ### v0.3
@@ -26,8 +27,6 @@ summ=${DATADIR}all/summary
 Rscript ${SPLITCHR} --summary ${summ}.assoc.txt
 
 # Set parameters
-valg=${DATADIR}val/valid
-valp=${DATADIR}val/valid_pheno.txt
 BLOCK=${PACK_DIR}DBSLMM/LDblock/chr
 herit=/your/path/herit.log
 index=r2
@@ -36,18 +35,22 @@ outpath=${DATADIR}output/
 
 # DBSLMM tuning version (without covariates)
 type=t
+valg=${DATADIR}val/valid
+valp=${DATADIR}val/valid_pheno.txt
 model=DBSLMM
 sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
 # DBSLMM determinitic version (without covariates)
 type=d
+refp=${DATADIR}val/val
 model=DBSLMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
 # LMM version
 type=d
+refp=${DATADIR}val/val
 model=LMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp} -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 ````
 If the user wants to change the fold of heritability, you can revise the setting in `DBSLMM_script.sh`.
 You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
