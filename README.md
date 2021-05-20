@@ -33,7 +33,7 @@ index=r2
 thread=1
 outpath=${DATADIR}output/
 
-# DBSLMM tuning version (without covariates)
+# DBSLMM automatical version (without covariates)
 type=t
 valg=${DATADIR}val/valid
 valp=${DATADIR}val/valid_pheno.txt
