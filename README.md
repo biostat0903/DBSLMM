@@ -33,7 +33,7 @@ index=r2
 thread=1
 outpath=${DATADIR}output/
 
-# DBSLMM automatical version (without covariates)
+# DBSLMM tuning version (without covariates)
 type=t
 valg=${DATADIR}val/valid
 valp=${DATADIR}val/valid_pheno.txt
@@ -41,7 +41,7 @@ model=DBSLMM
 sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp}\
              -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
 
-# DBSLMM determinitic version (without covariates)
+# DBSLMM automatic version (without covariates)
 type=d
 refp=${DATADIR}val/val
 model=DBSLMM
