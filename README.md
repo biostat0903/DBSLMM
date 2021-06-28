@@ -57,7 +57,7 @@ sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${
 ````
 If the user wants to change the fold of heritability, you can revise the setting in `DBSLMM_script.sh`.
 You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
-The download link of `dbslmm` is <https://drive.google.com/file/d/1Rpo2pNv4bXgWYiHnDZQfYeD0GUSJFBAM/view?usp=sharing>.
+The download link of `dbslmm` is <https://drive.google.com/file/d/1eAbEyhF8rO_faOFL3jqRo9LmfgJNRH6K/view?usp=sharing>.
 
 ## Tutorial for external test only using summary statistics
 ### Make SNP correlation matrix
