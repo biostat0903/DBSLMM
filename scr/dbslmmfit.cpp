@@ -436,13 +436,27 @@ mat DBSLMMFIT::PCGm(mat A, mat B, size_t maxiter, const double tol){
 int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat geno_l, vec z_s, vec z_l, vec &beta_s, vec &beta_l) {
 	
 	// LD matrix 
-	mat SIGMA_ls = geno_l.t() * geno_s; 
-	SIGMA_ls /= (double)n_ref; 
-	mat SIGMA_ll = geno_l.t() * geno_l; 
-	SIGMA_ll /= (double)n_ref;
-	mat SIGMA_ss = geno_s.t() * geno_s; 
-	SIGMA_ss /= (double)n_ref;
+	// mat SIGMA_ls = geno_l.t() * geno_s; 
+	// SIGMA_ls /= (double)n_ref; 
+	// mat SIGMA_ll = geno_l.t() * geno_l; 
+	// SIGMA_ll /= (double)n_ref;
+	// mat SIGMA_ss = geno_s.t() * geno_s; 
+	// SIGMA_ss /= (double)n_ref;
 	
+	double tau = 0.8;
+	mat SIGMA_ls = geno_l.t() * geno_s;
+	SIGMA_ls *= tau/(double)n_ref;
+	mat SIGMA_ll = geno_l.t() * geno_l; 
+	SIGMA_ll *= tau/(double)n_ref;
+	vec DIAG_l(geno_l.n_cols, fill::ones);
+	DIAG_l *= (1.0-tau);
+	SIGMA_ll += diagmat(DIAG_l);
+	mat SIGMA_ss = geno_s.t() * geno_s; 
+	SIGMA_ss *= tau/(double)n_ref;
+	vec DIAG_s(geno_s.n_cols, fill::ones);
+	DIAG_s *= (1.0-tau);
+	SIGMA_ss += diagmat(DIAG_s);
+
 	// beta_l
 	SIGMA_ss.diag() += 1.0 / (sigma_s * (double)n_obs);
 	mat SIGMA_ss_inv_SIGMA_sl = PCGm(SIGMA_ss, SIGMA_ls.t(), 1000, 1e-7);
@@ -469,8 +483,15 @@ int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, mat ge
 int DBSLMMFIT::estBlock(int n_ref, int n_obs, double sigma_s, mat geno_s, vec z_s, vec &beta_s) {
 	
 	// LD matrix 
+	// mat SIGMA_ss = geno_s.t() * geno_s; 
+	// SIGMA_ss /= (double)n_ref;
+
+	double tau = 0.8;
 	mat SIGMA_ss = geno_s.t() * geno_s; 
-	SIGMA_ss /= (double)n_ref;
+	SIGMA_ss *= tau/(double)n_ref;
+	vec DIAG_s(geno_s.n_cols, fill::ones);
+	DIAG_s *= (1.0-tau);
+	SIGMA_ss += diagmat(DIAG_s);
 	
 	// beta_s
 	SIGMA_ss.diag() += 1.0 / (sigma_s * (double)n_obs);
