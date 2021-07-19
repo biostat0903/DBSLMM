@@ -45,7 +45,7 @@ args_list <- list(
               help = "INPUT: the heritability of trait", metavar = "character"),
   make_option("--h2f", type = "character", default = NULL,
               help = "INPUT: the fold of heritability of trait", metavar = "character"),
-  make_option("--type", type="character", default="d",
+  make_option("--type", type="character", default="auto",
               help="INPUT: type of DBSLMM (default: default version)", 
               metavar="character"),
   make_option("--mafMax", type = "character", default = "0.2",
@@ -71,7 +71,7 @@ opt <- parse_args(opt_parser)
 # cat("--n:        ", opt$n, "\n")
 # cat("--nsnp:     ", opt$nsnp, "\n")
 # cat("--h2:       ", opt$h2, "\n")
-# if(opt$type == "t"){
+# if(opt$type == "auto"){
 #   cat("--h2f:      ", opt$h2f, "\n")
 # }
 # cat("--type:     ", opt$type, "\n")
@@ -141,7 +141,7 @@ if (opt$model == "DBSLMM"){
     end <- proc.time()
     cat("Clumping time: ", end[3]-start[3], "s.\n")
     ## dbslmm
-    if (opt$type == "d"){
+    if (opt$type == "auto"){
       system(paste0(opt$dbslmm,
                            " -s ",      opt$summ,
                            " -r ",      opt$ref,
@@ -154,6 +154,7 @@ if (opt$model == "DBSLMM"){
                            " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
   
     } else {
+      h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
       for (hh in h2_vec) {
         h2d <- opt$h2*hh
         system(paste0(opt$dbslmm,
@@ -189,7 +190,7 @@ if (opt$model == "DBSLMM"){
     cat("Clumping time: ", end[3]-start[3], "s.\n")
   
     ## dbslmm
-    if(opt$type == "d"){
+    if(opt$type == "auto"){
       system(paste0(opt$dbslmm,
                     " -s ",      opt$outPath, "s_", prefix_file, ".txt",
                     " -l ",      opt$outPath, "l_", prefix_file, ".txt",
@@ -236,5 +237,5 @@ if (opt$model == "LMM"){
                 " -b ",      opt$block,
                 " -mafMax ", opt$mafMax,      
                 " -t ",      opt$thread,
-                " -eff ",    opt$outPath, prefix_file, ".lmm"))
+                " -eff ",    opt$outPath, prefix_file, ".dbslmm"))
 }
