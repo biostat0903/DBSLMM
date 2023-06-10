@@ -3,6 +3,8 @@ Deterministic Bayesian Sparse Linear Mixed Model <br>
 There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. In our experience, the tuning version may work more accurately than the deterministic version.
 
 ## Update log
+### v0.3 Online Server
+* provide the online version https://www.pgs-server.com/.
 ### v0.3
 * fixes the bug of model fiting
 ### v0.21
