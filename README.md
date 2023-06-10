@@ -4,7 +4,7 @@ There are two versions of DBSLMM: the tuning version and the deterministic versi
 
 ## Update log
 ### v0.3 Online Server
-* provide the online version https://www.pgs-server.com/.
+* provides the online version https://www.pgs-server.com/.
 ### v0.3
 * fixes the bug of model fiting
 ### v0.21
