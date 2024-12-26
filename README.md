@@ -13,7 +13,7 @@ There are two versions of DBSLMM: the tuning version and the deterministic versi
 
 ## Update log
 ### v1.0 User-friendly DBSLMM
-* integrates [<em>bigsnpr</em> package](https://privefl.github.io/bigsnpr/) to estiamte the heritability
+* integrates [<em>bigsnpr</em>](https://privefl.github.io/bigsnpr/) to estiamte the heritability
 * provides the block file and 'map_hm3_plus.rds'
 * fits the model based on one R script
 * provides the online server [PGSFsuion](http://www.pgsfusion.net/) constructing PGS and performing epidemiological application in UKBB
