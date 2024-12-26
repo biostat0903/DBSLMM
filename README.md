@@ -2,6 +2,16 @@
 Deterministic Bayesian Sparse Linear Mixed Model <br>
 There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. In our experience, the tuning version may work more accurately than the deterministic version.
 
+## Relative papers
+### PGS tools
+[Method Paper](https://linkinghub.elsevier.com/retrieve/pii/S0002-9297(20)30109-9): Yang S, Zhou X. Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets. Am J Hum Genet. 2020 May 7;106(5):679-693. <br>
+[Bechmarking Paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): Yang S, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. Brief Bioinform. 2022 Mar 10;23(2):bbac039. <br>
+[Database paper](https://academic.oup.com/nar/article/52/D1/D963/7416385): Cao C, Zhang S, Wang J, Tian M, Ji X, Huang D, Yang S, Gu N. PGS-Depot: a comprehensive resource for polygenic scores constructed by summary statistics based methods. Nucleic Acids Res. 2024 Jan 5;52(D1):D963-D971. <br>
+[Webserver paper](https://www.biorxiv.org/content/10.1101/2024.08.05.606619v1): Yang S, Ye X, Ji X, Li Z, Tian M, Huang P, Cao C. PGSFusion streamlines polygenic score construction and epidemiological applications in biobank-scale cohorts.<br>
+### Applications
+[Psych-]
+
+
 ## Update log
 ### v1.0 User-friendly DBSLMM
 * integrates <>bigsnpr package () to estiamte the heritability
