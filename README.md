@@ -1,5 +1,5 @@
 # DBSLMM
-Deterministic Bayesian Sparse Linear Mixed Model <br>
+## Overview
 There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. <br>
 For binary traits, especially for psychiatry diseases (i.e. major depression), DBSLMM usually outperforms some existing PGS construction methods.
 
