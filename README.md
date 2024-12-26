@@ -5,7 +5,7 @@ There are two versions of DBSLMM: the tuning version and the deterministic versi
 ## Relative papers
 ### PGS tools
 [Method Paper](https://linkinghub.elsevier.com/retrieve/pii/S0002-9297(20)30109-9):  <em><strong>Yang S</strong></em>\#, Zhou X. Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets.  Am J Hum Genet. 2020 May 7;106(5):679-693. <br>
-[Bechmarking Paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): <em><strong>Yang S</strong></em>\#, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. Brief Bioinform. 2022 Mar 10;23(2):bbac039. <br>
+[Bechmarking Paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): <em><strong>Yang S</strong></em>\#\*, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. Brief Bioinform. 2022 Mar 10;23(2):bbac039. <br>
 [Database paper](https://academic.oup.com/nar/article/52/D1/D963/7416385): Cao C, Zhang S, Wang J, Tian M, Ji X, Huang D\*, <em><strong>Yang S</strong></em>\*, Gu N. PGS-Depot: a comprehensive resource for polygenic scores constructed by summary statistics based methods. Nucleic Acids Res. 2024 Jan 5;52(D1):D963-D971. <br>
 [Webserver paper](https://www.biorxiv.org/content/10.1101/2024.08.05.606619v1): <em><strong>Yang S</strong></em>\#\*, Ye X\#, Ji X\#, Li Z, Tian M, Huang P, Cao C. PGSFusion streamlines polygenic score construction and epidemiological applications in biobank-scale cohorts.<br>
 ### Applications
