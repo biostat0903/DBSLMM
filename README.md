@@ -10,7 +10,7 @@ For binary traits, especially for psychiatry diseases (i.e. major depression), D
 [Database paper](https://academic.oup.com/nar/article/52/D1/D963/7416385): Cao C, Zhang S, Wang J, Tian M, Ji X, Huang D\*, <em><strong>Yang S</strong></em>\*, Gu N. PGS-Depot: a comprehensive resource for polygenic scores constructed by summary statistics based methods. <em>Nucleic Acids Res</em>. 2024 Jan 5;52(D1):D963-D971. <br>
 [Webserver paper](https://www.biorxiv.org/content/10.1101/2024.08.05.606619v1): <em><strong>Yang S</strong></em>\#\*, Ye X\#, Ji X\#, Li Z, Tian M, Huang P, Cao C. PGSFusion streamlines polygenic score construction and epidemiological applications in biobank-scale cohorts. <em>bioRxiv</em>. <br>
 ### Applications
-[Psycho-metabolic nexus]: Guo X, Feng Y, Ji X, Jia N, Mainaiti A, Lai J, Wang Z\*, <em><strong>Yang S</strong></em>\*, Hu S\*. Shared genetic architecture and bidirectional clincial risks with psycho-metabolic nexus. <em>EBioMedicine</em>. (in press) <br>
+[Psycho-metabolic nexus](https://www.sciencedirect.com/science/article/pii/S2352396424005668): Guo X, Feng Y, Ji X, Jia N, Mainaiti A, Lai J, Wang Z\*, <em><strong>Yang S</strong></em>\*, Hu S\*. Shared genetic architecture and bidirectional clincial risks with psycho-metabolic nexus. <em>EBioMedicine</em>. (in press) <br>
 
 ## Update log
 ### v1.0 User-friendly DBSLMM
