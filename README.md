@@ -31,7 +31,8 @@ We update the `software/DBSLMM.R` and `software/TUNE.R`.
 * fits the LMM, when the chromosome without any large effect SNPs
 * fits the external validation all by R code. 
 
-## Tutorial for DBSLMM (v0.3)
+## Tutorial for DBSLMM (v1.0)
+We use one R script to construct PGS 
 In this version, we use `DBSLMM_script.sh` to make the usage of DBSLMM more easier. v0.3 needs `valg` to be the whole genome plink file. By parameter `-m`, we give two different model assumptions, including DBSLMM and LMM. Specially, LMM model assumption only have the default version, because it do not need to tune `-h2f`.
 ````bash
 PACK_DIR=/your/path/
