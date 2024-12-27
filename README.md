@@ -14,7 +14,8 @@ For binary traits, especially for psychiatry diseases (i.e. major depression), D
 
 ## Update log
 ### v1.0 User-friendly DBSLMM
-* integrates [<em>bigsnpr</em>](https://privefl.github.io/bigsnpr/) to estiamte the heritability and to clumping
+We update the `software/DBSLMM.R` and `software/TUNE.R`.
+* integrates [<em>bigsnpr</em>](https://privefl.github.io/bigsnpr/) to estiamte the heritability, select large effect SNPs by clumping, and calculate the $\hat{y}$ for the validation set
 * provides <em>'map_hm3_plus.rds'</em> and corresponding PLINK files for three ancestries from 1000 Genomes Project
 * fits the whole genomoe for three DBSLMM models with one R script
 * provides the online server [PGSFsuion](http://www.pgsfusion.net/) constructing PGS and performing epidemiological application in UKBB
