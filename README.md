@@ -1,13 +1,24 @@
 # DBSLMM
-Deterministic Bayesian Sparse Linear Mixed Model <br>
-There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. In our experience, the tuning version may work more accurately than the deterministic version.
+## Overview
+There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. <br>
+For binary traits, especially for psychiatry diseases (i.e. major depression), DBSLMM usually outperforms some existing PGS construction methods.
+
+## Relative papers
+### PGS tools
+[Method Paper](https://linkinghub.elsevier.com/retrieve/pii/S0002-9297(20)30109-9):  <em><strong>Yang S</strong></em>\#, Zhou X. Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets.  <em>Am J Hum Genet</em>. 2020 May 7;106(5):679-693. <br>
+[Bechmarking Paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): <em><strong>Yang S</strong></em>\#\*, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. <em>Brief Bioinform</em>. 2022 Mar 10;23(2):bbac039. <br>
+[Database paper](https://academic.oup.com/nar/article/52/D1/D963/7416385): Cao C, Zhang S, Wang J, Tian M, Ji X, Huang D\*, <em><strong>Yang S</strong></em>\*, Gu N. PGS-Depot: a comprehensive resource for polygenic scores constructed by summary statistics based methods. <em>Nucleic Acids Res</em>. 2024 Jan 5;52(D1):D963-D971. <br>
+[Webserver paper](https://www.biorxiv.org/content/10.1101/2024.08.05.606619v1): <em><strong>Yang S</strong></em>\#\*, Ye X\#, Ji X\#, Li Z, Tian M, Huang P, Cao C. PGSFusion streamlines polygenic score construction and epidemiological applications in biobank-scale cohorts. <em>bioRxiv</em>. <br>
+### Applications
+[Psycho-metabolic nexus]: Guo X, Feng Y, Ji X, Jia N, Mainaiti A, Lai J, Wang Z\*, <em><strong>Yang S</strong></em>\*, Hu S\*. Shared genetic architecture and bidirectional clincial risks with psycho-metabolic nexus. <em>EBioMedicine</em>. (in press) <br>
 
 ## Update log
 ### v1.0 User-friendly DBSLMM
-* integrates <>bigsnpr package () to estiamte the heritability
-* provides the block file and 'map_hm3_plus.rds'
-* fits the model based on one R script
-* provides the online version (http://www.pgsfusion.net/) and epidemiological application in UKBB
+We update the `software/DBSLMM.R` and `software/TUNE.R`.
+* integrates [<em>bigsnpr</em>](https://privefl.github.io/bigsnpr/) to estiamte the heritability, select large effect SNPs by clumping, and calculate the $\hat{y}$ for the validation set
+* provides <em>'map_hm3_plus.rds'</em> and corresponding PLINK files for three ancestries from 1000 Genomes Project
+* fits the whole genomoe for three DBSLMM models with one R script
+* provides the online server [PGSFsuion](http://www.pgsfusion.net/) constructing PGS and performing epidemiological application in UKBB
 ### v0.3 Online Server
 * provides the online version https://www.pgs-server.com/.
 ### v0.3
@@ -20,7 +31,8 @@ There are two versions of DBSLMM: the tuning version and the deterministic versi
 * fits the LMM, when the chromosome without any large effect SNPs
 * fits the external validation all by R code. 
 
-## Tutorial for DBSLMM (v0.3)
+## Tutorial for DBSLMM (v1.0)
+We use one R script to construct PGS 
 In this version, we use `DBSLMM_script.sh` to make the usage of DBSLMM more easier. v0.3 needs `valg` to be the whole genome plink file. By parameter `-m`, we give two different model assumptions, including DBSLMM and LMM. Specially, LMM model assumption only have the default version, because it do not need to tune `-h2f`.
 ````bash
 PACK_DIR=/your/path/
