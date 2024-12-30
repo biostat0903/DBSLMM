@@ -11,6 +11,7 @@ For binary traits, especially for psychiatry diseases (i.e. major depression), D
 [Webserver paper](https://www.biorxiv.org/content/10.1101/2024.08.05.606619v1): <em><strong>Yang S</strong></em>\#\*, Ye X\#, Ji X\#, Li Z, Tian M, Huang P, Cao C. PGSFusion streamlines polygenic score construction and epidemiological applications in biobank-scale cohorts. <em>bioRxiv</em>. <br>
 ### Applications
 [Psycho-metabolic nexus](https://www.sciencedirect.com/science/article/pii/S2352396424005668): Guo X, Feng Y, Ji X, Jia N, Mainaiti A, Lai J, Wang Z\*, <em><strong>Yang S</strong></em>\*, Hu S\*. Shared genetic architecture and bidirectional clincial risks with psycho-metabolic nexus. <em>EBioMedicine</em>. (in press) <br>
+[PTRS for Stroke](https://link.springer.com/article/10.1007/s00439-024-02717-7): Cai X, Li H, Cao X, Ma X, Zhu W, Xu L, <em><strong>Yang S</em></strong>, Yu R, Huang P. Integrating transcriptomic and polygenic risk scores to enhance predictive accuracy for ischemic stroke subtypes. <em>Hum Genet</em>. 2024 Nov 18. doi: 10.1007/s00439-024-02717-7. 
 
 ## Update log
 ### v1.0 User-friendly DBSLMM
