@@ -34,39 +34,19 @@ We update the `software/DBSLMM.R` and `software/TUNE.R`.
 
 ## Tutorial for DBSLMM (v1.0)
 We use one R script to construct PGS 
-In this version, we use `DBSLMM_script.sh` to make the usage of DBSLMM more easier. v0.3 needs `valg` to be the whole genome plink file. By parameter `-m`, we give two different model assumptions, including DBSLMM and LMM. Specially, LMM model assumption only have the default version, because it do not need to tune `-h2f`.
+In this version, we support DBSLMM and LMM models in automatic and tuning versions. 
+### DBSLMM-auto
 ````bash
-PACK_DIR=/your/path/
-SPLITCHR=${PACK_DIR}DBSLMM/software/SPLITCHR.R
-PLINK=${PACK_DIR}plink_1.9/plink
-DBSLMM=${PACK_DIR}DBSLMM/DBSLMM_script.sh
-
-# Split into chromosome
-DATADIR=/your/path/example_data/
-summ=${DATADIR}all/summary
-Rscript ${SPLITCHR} --summary ${summ}.assoc.txt
-
 # Set parameters
-BLOCK=${PACK_DIR}DBSLMM/LDblock/chr
-herit=/your/path/herit.log
-index=r2
-thread=1
-outpath=${DATADIR}output/
+BLOCK=${PACK_DIR}/block_dat
+outpath=${DATA_DIR}output/
 
-# DBSLMM tuning version (without covariates)
-type=t
-valg=${DATADIR}val/valid
-valp=${DATADIR}val/valid_pheno.txt
+# DBSLMM automatic version
 model=DBSLMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${valg} -P ${valp}\
-             -l ${col} -T ${type}  -i ${index} -t ${thread} -o ${outpath}
-
-# DBSLMM automatic version (without covariates)
-type=d
-refp=${DATADIR}val/val
-model=DBSLMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp}\
-             -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+Rscript ${PACK_DIR}/software/DBSLMM.R --summary ${Summary_stat} --dbslmm ${PACK_DIR}/dbslmm --type auto --model ${model} \
+					                            --reference ${ref_panel} --block ${BLOCK} --N ${N} --outPath ${outpath}/
+````
+Tips: If you set `model=LMM`, we can fit DBSLMM-LMM model. 
 
 # LMM version
 type=d
