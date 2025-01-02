@@ -33,31 +33,38 @@ We update the `software/DBSLMM.R` and `software/TUNE.R`.
 * fits the external validation all by R code. 
 
 ## Tutorial for DBSLMM (v1.0)
-We use one R script to construct PGS 
-In this version, we support DBSLMM and LMM models in automatic and tuning versions. 
+In this version, we support DBSLMM and LMM models in automatic and tuning versions. The download link of `dbslmm` is <https://drive.google.com/file/d/1eAbEyhF8rO_faOFL3jqRo9LmfgJNRH6K/view?usp=sharing>.
 ### DBSLMM-auto
 ````bash
-# Set parameters
-BLOCK=${PACK_DIR}/block_dat
+Summary_stat=/summary/statistics/in/GEMMA/fromat.txt
+anc=EUR
+BLOCK=${PACK_DIR}/block_data/${anc}
 outpath=${DATA_DIR}output/
-
-# DBSLMM automatic version
 model=DBSLMM
 Rscript ${PACK_DIR}/software/DBSLMM.R --summary ${Summary_stat} --dbslmm ${PACK_DIR}/dbslmm --type auto --model ${model} \
-					                            --reference ${ref_panel} --block ${BLOCK} --N ${N} --outPath ${outpath}/
+                                      --reference ${ref_panel} --block ${BLOCK} --N ${N} --outPath ${outpath}/
 ````
-Tips: If you set `model=LMM`, we can fit DBSLMM-LMM model. 
+<em><strong>Tips</strong></em>
+* If you set `model=LMM`, we can fit DBSLMM-LMM model.
+* If the summary statistics is not EUR, you can set `anc=AFR` or `anc=EAS`.
+* If the trait is binary, you can set `N=${n_case},${n_control}`
 
-# LMM version
-type=d
-refp=${DATADIR}val/val
-model=LMM
-sh ${DBSLMM} -D ${PACK_DIR} -p ${PLINK} -B ${BLOCK} -s ${summ} -H ${herit} -m ${model} -G ${refp}\
-             -T ${type}  -i ${index} -t ${thread} -o ${outpath}
+### DBSLMM-tuning
+````bash
+Summary_stat=/summary/statistics/in/GEMMA/fromat.txt
+anc=EUR
+BLOCK=${PACK_DIR}/block_data/${anc}
+outpath=${DATA_DIR}output/
+model=DBSLMM
+Rscript ${PACK_DIR}/software/DBSLMM.R --summary ${Summary_stat} --dbslmm ${PACK_DIR}/dbslmm --type tuning --model DBSLMM
+                                      --reference ${ref_panel} --block ${BLOCK} --N ${N} --outPath ${outpath}/ --h2f 0.8,1,1.2 		   
+Summary_prefix=`echo "$Summary_stat" | awk -F'.txt' '{print $1}'`
+Rscript ${PACK_DIR}/software/TUNE.R --dbslmm_eff ${Summary_prefix} --h2f 0.8,1,1.2 \
+                                    --validation_g ${val_genotype} --validation_p ${val_phenotype} 
 ````
-If the user wants to change the fold of heritability, you can revise the setting in `DBSLMM_script.sh`.
-You should use the output file of `ldsc` as `-H` parameter of `DBSLMM`.
-The download link of `dbslmm` is <https://drive.google.com/file/d/1eAbEyhF8rO_faOFL3jqRo9LmfgJNRH6K/view?usp=sharing>.
+<em><strong>Tips</strong></em>
+* `h2f` in `DBSLMM.R` and `TUNE.R` MUST be the same.
+* If you have covarites, you can specify `cov` flag.
 
 ## Tutorial for external test only using summary statistics
 ### Make SNP correlation matrix
