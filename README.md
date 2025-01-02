@@ -3,7 +3,7 @@
 There are two versions of DBSLMM: the tuning version and the deterministic version. The tuning version examines three different heritability choices and requires a validation data to tune the heritability hyper-parameter. The deterministic version uses one heritability estimate and directly fit the model in the training data without a separate validation data. Both versions requires a reference data to compute the SNP correlation matrix. <br>
 For binary traits, especially for psychiatry diseases (i.e. major depression), DBSLMM usually outperforms some existing PGS construction methods.
 
-## Relative papers
+## Relative papers in my group
 ### PGS tools
 [Method Paper](https://linkinghub.elsevier.com/retrieve/pii/S0002-9297(20)30109-9):  <em><strong>Yang S</strong></em>\#, Zhou X. Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets.  <em>Am J Hum Genet</em>. 2020 May 7;106(5):679-693. <br>
 [Bechmarking Paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): <em><strong>Yang S</strong></em>\#\*, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. <em>Brief Bioinform</em>. 2022 Mar 10;23(2):bbac039. <br>
