@@ -51,8 +51,9 @@ Rscript ${PACK_DIR}/software/DBSLMM.R --summary ${Summary_stat} --dbslmm ${PACK_
 <em><strong>Tips</strong></em>
 * If you set `model=LMM`, we can fit DBSLMM-LMM model.
 * If the summary statistics is not EUR, you can set `anc=AFR` or `anc=EAS`.
-* If the trait is binary, you can set `N=${n_case},${n_control}`. In this situatoin, we used effective sample size to estimate the heritability.
-* If the trait is quantitative, you can set `N=n_sample`. Although 
+* If the trait is quantitative, you can set `N=n_sample`. 
+* If the trait is binary, you can set `N=${n_case},${n_control}`. DBSLMM will use effective sample size to estimate heritability. You CAN also regard the binary trait as the quantitative trait. 
+
 
 ### DBSLMM-tuning
 ````bash
