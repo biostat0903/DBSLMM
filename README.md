@@ -33,7 +33,11 @@ We update the `software/DBSLMM.R` and `software/TUNE.R`.
 * fits the external validation all by R code. 
 
 ## Tutorial for DBSLMM (v1.0)
-In this version, we support DBSLMM and LMM models in automatic and tuning versions. The download link of `dbslmm` is <https://drive.google.com/file/d/1eAbEyhF8rO_faOFL3jqRo9LmfgJNRH6K/view?usp=sharing>.
+In this version, we support DBSLMM and LMM models in automatic and tuning versions. The download link of `dbslmm` is <>.
+### Prepartion
+* download execution file [dbslmm](https://drive.google.com/file/d/1eAbEyhF8rO_faOFL3jqRo9LmfgJNRH6K/view?usp=sharing)
+* download the reference panel from 1kg
+* ensure the summary statistics in [GEMMA format](https://github.com/genetics-statistics/GEMMA/blob/master/doc/manual.pdf)
 ### DBSLMM-auto
 ````bash
 Summary_stat=/summary/statistics/in/GEMMA/fromat.txt
@@ -47,7 +51,8 @@ Rscript ${PACK_DIR}/software/DBSLMM.R --summary ${Summary_stat} --dbslmm ${PACK_
 <em><strong>Tips</strong></em>
 * If you set `model=LMM`, we can fit DBSLMM-LMM model.
 * If the summary statistics is not EUR, you can set `anc=AFR` or `anc=EAS`.
-* If the trait is binary, you can set `N=${n_case},${n_control}`
+* If the trait is binary, you can set `N=${n_case},${n_control}`. In this situatoin, we used effective sample size to estimate the heritability.
+* If the trait is quantitative, you can set `N=n_sample`. Although 
 
 ### DBSLMM-tuning
 ````bash
