@@ -152,7 +152,7 @@ if (opt$model == "LMM"){
     fwrite2(sumstats_chr, file = chr_str, col.names = F, sep = "\t")
     lmm_cmd <- paste0(opt$dbslmm,
                       " -s ",      chr_str,
-                      " -r ",      paste0(opt$reference, "merge"),
+                      " -r ",      paste0(opt$reference, "/merge"),
                       " -nsnp ",   length(df_beta),
                       " -n ",      as.integer(n_eff),
                       " -b ",      paste0(opt$block, "chr", CHR, ".bed"),
