@@ -42,7 +42,7 @@ In this version, we support DBSLMM and LMM models in automatic and tuning versio
 ````bash
 Summary_stat=/summary/statistics/in/GEMMA/fromat.txt
 anc=EUR
-BLOCK=${PACK_DIR}/block_data/${anc}
+BLOCK=${PACK_DIR}/block_data/${anc}/
 outpath=${DATA_DIR}output/
 model=DBSLMM
 Rscript ${PACK_DIR}/software/DBSLMM.R --summary ${Summary_stat} --dbslmm ${PACK_DIR}/dbslmm --type auto --model ${model} \
