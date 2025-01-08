@@ -211,7 +211,7 @@ if (opt$model == "DBSLMM"){
   dbslmm <- alply(c(1: 22), 1, function(CHR){
     
     dbslmm_cmd <- paste0(opt$dbslmm,
-                         " -r ",      paste0(opt$reference, "merge"),
+                         " -r ",      paste0(opt$reference, "/merge"),
                          " -nsnp ",   length(df_beta),
                          " -n ",      as.integer(n_eff),
                          " -b ",      paste0(opt$block, "chr", CHR, ".bed"),
