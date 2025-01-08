@@ -285,8 +285,8 @@ if (opt$model == "DBSLMM"){
 }
 
 # # Format files
-# paste0("cat ", opt$outPath, prefix_file, "_chr{1..22}.dbslmm.txt > ", 
-#        opt$outPath, prefix_file, ".dbslmm") %>% system()
+# paste0(opt$outPath, prefix_file, "_chr", 1:22, ".dbslmm.txt") %>% paste(., collapse = " ") %>%
+#     paste("cat",. , ">", paste0(opt$outPath, prefix_file, ".dbslmm.txt")) %>% system()
 # for (chr in 1: 22)
 #   paste0("rm -rf ", opt$outPath, prefix_file, "_chr", chr, ".dbslmm") %>% system()
 
