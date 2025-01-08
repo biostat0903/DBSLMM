@@ -152,7 +152,7 @@ if (opt$model == "LMM"){
     fwrite2(sumstats_chr, file = chr_str, col.names = F, sep = "\t")
     lmm_cmd <- paste0(opt$dbslmm,
                       " -s ",      chr_str,
-                      " -r ",      paste0(opt$ref, "chr", CHR),
+                      " -r ",      paste0(opt$reference, "merge"),
                       " -nsnp ",   length(df_beta),
                       " -n ",      as.integer(n_eff),
                       " -b ",      paste0(opt$block, "chr", CHR, ".bed"),
@@ -188,7 +188,7 @@ if (opt$model == "DBSLMM"){
   
   ## C+T
   df_beta_sig <- df_beta[df_beta$pval < PVAL, ]
-  ref_bed <- snp_attach(paste0(opt$reference, "/ref.rds"))
+  ref_bed <- snp_attach(paste0(opt$reference, "/map_hm3_plus.rds"))
   ref_sub_str <- paste0(opt$reference, "/ref_sub-", as.numeric(as.POSIXlt(Sys.time())))
   ref_sub_bed <- snp_attach(snp_subset(ref_bed, 
                                        ind.col = df_beta_sig$`_NUM_ID_`, 
@@ -211,7 +211,7 @@ if (opt$model == "DBSLMM"){
   dbslmm <- alply(c(1: 22), 1, function(CHR){
     
     dbslmm_cmd <- paste0(opt$dbslmm,
-                         " -r ",      paste0(opt$ref, "chr", CHR),
+                         " -r ",      paste0(opt$reference, "merge"),
                          " -nsnp ",   length(df_beta),
                          " -n ",      as.integer(n_eff),
                          " -b ",      paste0(opt$block, "chr", CHR, ".bed"),
