@@ -188,7 +188,7 @@ if (opt$model == "DBSLMM"){
   
   ## C+T
   df_beta_sig <- df_beta[df_beta$pval < PVAL, ]
-  if(!file.exits(paste0(opt$reference, "/merge.bk")))
+  if(!file.exists(paste0(opt$reference, "/merge.bk")))
     snp_readBed(paste0(opt$reference, "/merge.bed"))
   ref_bed <- snp_attach(paste0(opt$reference, "/merge.rds"))
   ref_sub_str <- paste0(opt$reference, "/merge_sub-", as.numeric(as.POSIXlt(Sys.time())))
