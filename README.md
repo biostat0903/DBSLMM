@@ -5,13 +5,13 @@ For binary traits, especially for psychiatry diseases (i.e. major depression), D
 
 ## Relative papers in my group
 ### PGS tools
-[Method Paper](https://linkinghub.elsevier.com/retrieve/pii/S0002-9297(20)30109-9):  <em><strong>Yang S</strong></em>\#, Zhou X. Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets.  <em>Am J Hum Genet</em>. 2020 May 7;106(5):679-693. <br>
-[Bechmarking Paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): <em><strong>Yang S</strong></em>\#\*, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. <em>Brief Bioinform</em>. 2022 Mar 10;23(2):bbac039. <br>
+[Method paper](https://linkinghub.elsevier.com/retrieve/pii/S0002-9297(20)30109-9):  <em><strong>Yang S</strong></em>\#, Zhou X. Accurate and Scalable Construction of Polygenic Scores in Large Biobank Data Sets.  <em>Am J Hum Genet</em>. 2020 May 7;106(5):679-693. <br>
+[Bechmarking paper](https://academic.oup.com/bib/article/23/2/bbac039/6534383?login=false): <em><strong>Yang S</strong></em>\#\*, Zhou X. PGS-server: accuracy, robustness and transferability of polygenic score methods for biobank scale studies. <em>Brief Bioinform</em>. 2022 Mar 10;23(2):bbac039. <br>
 [Database paper](https://academic.oup.com/nar/article/52/D1/D963/7416385): Cao C, Zhang S, Wang J, Tian M, Ji X, Huang D\*, <em><strong>Yang S</strong></em>\*, Gu N. PGS-Depot: a comprehensive resource for polygenic scores constructed by summary statistics based methods. <em>Nucleic Acids Res</em>. 2024 Jan 5;52(D1):D963-D971. <br>
 [Webserver paper](https://www.biorxiv.org/content/10.1101/2024.08.05.606619v1): <em><strong>Yang S</strong></em>\#\*, Ye X\#, Ji X\#, Li Z, Tian M, Huang P, Cao C. PGSFusion streamlines polygenic score construction and epidemiological applications in biobank-scale cohorts. <em>bioRxiv</em>. <br>
 ### Applications
 [Psycho-metabolic nexus](https://www.sciencedirect.com/science/article/pii/S2352396424005668): Guo X, Feng Y, Ji X, Jia N, Mainaiti A, Lai J, Wang Z\*, <em><strong>Yang S</strong></em>\*, Hu S\*. Shared genetic architecture and bidirectional clincial risks with psycho-metabolic nexus. <em>eBioMedicine</em>. (in press) <br>
-[PTRS for Stroke](https://link.springer.com/article/10.1007/s00439-024-02717-7): Cai X, Li H, Cao X, Ma X, Zhu W, Xu L, <em><strong>Yang S</em></strong>, Yu R, Huang P. Integrating transcriptomic and polygenic risk scores to enhance predictive accuracy for ischemic stroke subtypes. <em>Hum Genet</em>. 2024 Nov 18. doi: 10.1007/s00439-024-02717-7. 
+[PTRS for stroke](https://link.springer.com/article/10.1007/s00439-024-02717-7): Cai X, Li H, Cao X, Ma X, Zhu W, Xu L, <em><strong>Yang S</em></strong>, Yu R, Huang P. Integrating transcriptomic and polygenic risk scores to enhance predictive accuracy for ischemic stroke subtypes. <em>Hum Genet</em>. 2024 Nov 18. doi: 10.1007/s00439-024-02717-7. 
 
 ## Update log
 ### v1.0 User-friendly DBSLMM
