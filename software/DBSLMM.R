@@ -121,6 +121,8 @@ map <- transmute(readRDS(paste0(opt$reference,"/map_hm3_plus.rds")),
 sumstats <- fread2(opt$summary, header = T)
 sumstats <- sumstats[order(sumstats[, 1], sumstats[, 3]), ]
 sumstats_gemma <- sumstats
+colnames(sumstats_gemma) <- c("chr", "rs", "ps", "n_mis", "n_obs", "allele1", 
+                              "allele0", "af", "beta", "se", "p_wald")
 ## Calculate effective sample size
 N_str <- strsplit(opt$N, ",")[[1]] %>% as.numeric
 if (length(N_str) == 1){
