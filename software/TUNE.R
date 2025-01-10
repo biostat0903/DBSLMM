@@ -116,7 +116,4 @@ best_h2f <- h_vec[which.max(index[, 1])]
 # Process file
 paste0("mv ", opt$dbslmm_eff, "_h2f", best_h2f, ".dbslmm.txt ", 
        opt$dbslmm_eff, "_best.dbslmm.txt ") %>% system()
-paste0("mv ", opt$dbslmm_eff, "_h2f", best_h2f, ".dbslmm.txt ", 
-       opt$dbslmm_eff, "_best.dbslmm.txt ") %>% system()
-
-paste0("rm -rf ", opt$dbslmm_eff, "_h2f*") %>% system()
+# paste0("rm -rf ", opt$dbslmm_eff, "_h2f*") %>% system()
