@@ -191,7 +191,7 @@ if (opt$model == "DBSLMM"){
   if(!file.exists(paste0(opt$reference, "/merge.bk")))
     snp_readBed(paste0(opt$reference, "/merge.bed"))
   ref_bed <- snp_attach(paste0(opt$reference, "/merge.rds"))
-  ref_sub_str <- paste0(opt$reference, "/merge_sub-", as.numeric(as.POSIXlt(Sys.time())))
+  ref_sub_str <- paste0(opt$outPath, "/merge_sub-", as.numeric(as.POSIXlt(Sys.time())))
   ref_sub_bed <- snp_attach(snp_subset(ref_bed, 
                                        ind.col = df_beta_sig$`_NUM_ID_`, 
                                        backingfile = ref_sub_str))
