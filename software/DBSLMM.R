@@ -45,10 +45,6 @@ args_list <- list(
   make_option("--outPath", type = "character", default = NULL,
               help="INPUT: the output path", metavar = "character"),
   ## Non-required parameters
-  make_option("--validation_g", type = "character", default = NULL,
-              help = "INPUT: the perfix of genotype of validation set", metavar = "character"),
-  make_option("--validation_p", type = "character", default = NULL,
-              help = "INPUT: the perfix of phenotype of validation set", metavar = "character"),
   make_option("--h2f", type = "character", default = NULL,
               help = "INPUT: the fold of heritability of trait", metavar = "character"),
   make_option("--mafMax", type = "character", default = "0.2",
@@ -99,10 +95,6 @@ if (!file.exists(opt$reference)){
 # Check settings
 if (opt$type == "tuning"){
 
-  if (!file.exists(opt$validation_g) | !file.exists(opt$validation_p)){
-    cat(paste0("ERROR: Validation set does not exist! Please check!\n"))
-    q()
-  }
   if(is.null(opt$h2f)){
     cat(paste0("ERROR: Fold does not set! Please check!\n"))
     q()
