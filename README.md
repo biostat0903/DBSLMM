@@ -33,8 +33,9 @@ We update the `software/DBSLMM.R` and `software/TUNE.R`.
 * fits the external validation all by R code. 
 
 ## Tutorial for DBSLMM (v1.0)
-In this version, we support DBSLMM and LMM models in automatic and tuning versions. The download link of `dbslmm` is <>.
+In this version, we support DBSLMM and LMM models in automatic and tuning versions. 
 ### Prepartion
+* install R packages: <em>bigsnpr, bigreadr, dplyr, plyr, optparse</em>
 * download execution file [dbslmm](https://drive.google.com/file/d/1eAbEyhF8rO_faOFL3jqRo9LmfgJNRH6K/view?usp=sharing)
 * download the reference panel of European, East Asian and African populations from [1000 Genome Project](https://drive.google.com/drive/folders/1tC5dT6f2otpY0iXMPRzIxfihERHyURr0?usp=sharing)
 * ensure the summary statistics in [GEMMA format](https://github.com/genetics-statistics/GEMMA/blob/master/doc/manual.pdf)
