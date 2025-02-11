@@ -57,7 +57,7 @@ args_list <- list(
 opt_parser <- OptionParser(option_list=args_list)
 opt <- parse_args(opt_parser)
 
-# opt <- list(summary = "/public/home/biostat03/biosoft/DBSLMM/PGC.assoc.txt", 
+# opt <- list(summary = "", 
 #             dbslmm = "/public/home/biostat03/biosoft/DBSLMM/scr/dbslmm",
 #             type = "auto", 
 #             model = "LMM", 
@@ -94,7 +94,7 @@ if (!file.exists(opt$reference)){
 
 # Check settings
 if (opt$type == "tuning"){
-
+  
   if(is.null(opt$h2f)){
     cat(paste0("ERROR: Fold does not set! Please check!\n"))
     q()
@@ -129,67 +129,70 @@ sumstats$n_eff <- n_eff
 colnames(sumstats) <- c("chr", "pos", "rsid", "a0", "a1", "freq", "beta",
                         "beta_se", "pval", "n_eff")
 ## Coordinate summary statistics and map
-df_beta <- as_tibble(snp_match(sumstats, map,
+df_beta <- as_tibble(snp_match(sumstats, map, strand_flip = FALSE, 
                                return_flip_and_rev = TRUE))
 ldsc <- with(df_beta, snp_ldsc(ldsc, length(ldsc), chi2 = (beta / beta_se)^2,
                                sample_size = n_eff, blocks = NULL))
-##
+cat("heritability:", ldsc[[2]], "\n")
+cat("number of SNPs: ", nrow(df_beta), "\n")
+
 prefix_file <- strsplit(basename(opt$summary), "\\.")[[1]][1]
 
 # DBSLMM-lmm
 if (opt$model == "LMM"){
-  
+
   lmm <- alply(c(1: 22), 1, function(CHR){
-    
+
     sumstats_chr <- sumstats_gemma[sumstats_gemma$chr == CHR, ]
     chr_str <- paste0(opt$outPath, prefix_file, "_chr", CHR, ".assoc.txt")
     fwrite2(sumstats_chr, file = chr_str, col.names = F, sep = "\t")
     lmm_cmd <- paste0(opt$dbslmm,
                       " -s ",      chr_str,
-                      " -r ",      paste0(opt$reference, "/merge"),
-                      " -nsnp ",   length(df_beta),
+                      " -r ",      paste0(opt$reference, "/chr", CHR),
+                      " -nsnp ",   nrow(df_beta),
                       " -n ",      as.integer(n_eff),
                       " -b ",      paste0(opt$block, "chr", CHR, ".bed"),
-                      " -mafMax ", opt$mafMax,      
+                      " -mafMax ", opt$mafMax,
                       " -t ",      opt$thread)
     if (opt$type == "auto"){
       ## auto model
-      r_lmm_cmd <- paste0(lmm_cmd, 
+      r_lmm_cmd <- paste0(lmm_cmd,
                           " -h ",      ldsc[[2]],
                           " -eff ",    opt$outPath, prefix_file, "_chr", CHR, ".dbslmm") %>% system()
+      paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, ".dbslmm.badsnps") %>% system()
     } else {
       ## tuning model
       h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
       for (hh in h2_vec) {
-        
-        
-        fwrite2(sumstats_chr, file = chr_str, col.names = F, sep = "\t")
-        r_lmm_cmd <- paste0(lmm_cmd, 
+
+        # fwrite2(sumstats_chr, file = chr_str, col.names = F, sep = "\t")
+        r_lmm_cmd <- paste0(lmm_cmd,
                             " -h ",      ldsc[[2]] * hh,
                             " -eff ",    opt$outPath, prefix_file, "_chr", CHR,  "_h2f", hh, ".dbslmm") %>% system()
+        paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR,  "_h2f", hh, ".dbslmm.badsnps") %>% system()
       }
     }
-    
+
     ## remove temporary files
     system(paste0("rm -rf ", chr_str))
-    system(paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, ".dbslmm.badsnps"))
     return(CHR)
   })
 }
 
 # DBSLMM model
 if (opt$model == "DBSLMM"){
-  
+
   ## C+T
   df_beta_sig <- df_beta[df_beta$pval < PVAL, ]
-  if(!file.exists(paste0(opt$reference, "/merge.bk")))
-    snp_readBed(paste0(opt$reference, "/merge.bed"))
-  ref_bed <- snp_attach(paste0(opt$reference, "/merge.rds"))
+  if(!file.exists(paste0(opt$reference, "/merge_imp.bk")))
+    snp_readBed(paste0(opt$reference, "/merge_imp.bed"))
+  ref_bed <- snp_attach(paste0(opt$reference, "/merge_imp.rds"))
   ref_sub_str <- paste0(opt$outPath, "/merge_sub-", as.numeric(as.POSIXlt(Sys.time())))
-  ref_sub_bed <- snp_attach(snp_subset(ref_bed, 
-                                       ind.col = df_beta_sig$`_NUM_ID_`, 
+  ref_sub_bed <- snp_attach(snp_subset(ref_bed,
+                                       ind.col = df_beta_sig$`_NUM_ID_`,
                                        backingfile = ref_sub_str))
-  ref_G <- snp_fastImputeSimple(ref_sub_bed$genotypes)
+  # ref_G <- snp_fastImputeSimple(ref_sub_bed$genotypes)
+  ref_G <- ref_sub_bed$genotypes
   lp_val <- -log10(df_beta_sig$pval)
   all_keep <- snp_grid_clumping(ref_G,
                                 grid.thr.r2 = R2,
@@ -199,23 +202,23 @@ if (opt$model == "DBSLMM"){
                                 lpS = lp_val,
                                 ncores = 1)
   system(paste0("rm -rf ", ref_sub_str))
-  l_chr <- data.frame(chr = c(1: 22), 
-                      l_b = c(1: 22) %in% names(all_keep), 
+  l_chr <- data.frame(chr = c(1: 22),
+                      l_b = c(1: 22) %in% names(all_keep),
                       count = NA)
   l_chr$count[l_chr$l_b] <- c(1: sum(l_chr$l_b))
   ### Fit model
   dbslmm <- alply(c(1: 22), 1, function(CHR){
-    
+
     dbslmm_cmd <- paste0(opt$dbslmm,
-                         " -r ",      paste0(opt$reference, "/merge"),
-                         " -nsnp ",   length(df_beta),
+                         " -r ",      paste0(opt$reference, "/chr", CHR),
+                         " -nsnp ",   nrow(df_beta),
                          " -n ",      as.integer(n_eff),
                          " -b ",      paste0(opt$block, "chr", CHR, ".bed"),
-                         " -mafMax ", opt$mafMax,      
+                         " -mafMax ", opt$mafMax,
                          " -t ",      opt$thread)
-    
+
     if(CHR %in% names(all_keep)){
-      
+
       l_rsid_chr <- df_beta_sig$rsid.ss[all_keep[[l_chr$count[l_chr$chr == CHR]]][[1]]]
       l_summ_chr <- sumstats_gemma[sumstats_gemma$rs %in% l_rsid_chr, ]
       l_chr_str <- paste0(opt$outPath, "l_", prefix_file, "_chr", CHR, ".assoc.txt")
@@ -226,54 +229,55 @@ if (opt$model == "DBSLMM"){
       fwrite2(s_summ_chr, file = s_chr_str, col.names = F, sep = "\t")
       if (opt$type == "auto"){
         ## auto model
-        r_dbslmm_cmd <- paste0(dbslmm_cmd, 
-                               " -l ",     l_chr_str, 
-                               " -s ",     s_chr_str, 
+        r_dbslmm_cmd <- paste0(dbslmm_cmd,
+                               " -l ",     l_chr_str,
+                               " -s ",     s_chr_str,
                                " -h ",     ldsc[[2]],
                                " -eff ",   opt$outPath, prefix_file, "_chr", CHR, ".dbslmm") %>% system()
-        
+        system(paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, ".dbslmm.badsnps"))
       } else {
         ## tuning model
         h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
         for (hh in h2_vec) {
-          
-          r_dbslmm_cmd <- paste0(lmm_cmd, 
-                                 " -l ",      l_chr_str, 
-                                 " -s ",      s_chr_str, 
+
+          r_dbslmm_cmd <- paste0(dbslmm_cmd,
+                                 " -l ",      l_chr_str,
+                                 " -s ",      s_chr_str,
                                  " -h ",      ldsc[[2]] * hh,
                                  " -eff ",    opt$outPath, prefix_file, "_chr", CHR,  "_h2f", hh, ".dbslmm") %>% system()
+          system(paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, "_h2f", hh, ".dbslmm.badsnps"))
         }
       }
-      
+
       system(paste0("rm -rf ", l_chr_str))
     }else{
-      
+
       sumstats_chr <- sumstats_gemma[sumstats_gemma$chr == CHR, ]
       s_chr_str <- paste0(opt$outPath, "s_", prefix_file, "_chr", CHR, ".assoc.txt")
       fwrite2(sumstats_chr, file = s_chr_str, col.names = F, sep = "\t")
       if (opt$type == "auto"){
         ## auto model
-        r_dbslmm_cmd <- paste0(dbslmm_cmd, 
-                               " -s ",     s_chr_str, 
+        r_dbslmm_cmd <- paste0(dbslmm_cmd,
+                               " -s ",     s_chr_str,
                                " -h ",     ldsc[[2]],
                                " -eff ",   opt$outPath, prefix_file, "_chr", CHR, ".dbslmm") %>% system()
+        system(paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, ".dbslmm.badsnps"))
       } else {
         ## tuning model
         h2_vec <- as.numeric(unlist(strsplit(opt$h2f, ",")))
         for (hh in h2_vec) {
-          
-          r_dbslmm_cmd <- paste0(lmm_cmd, 
-                                 " -s ",      s_chr_str, 
+
+          r_dbslmm_cmd <- paste0(dbslmm_cmd,
+                                 " -s ",      s_chr_str,
                                  " -h ",      ldsc[[2]] * hh,
                                  " -eff ",    opt$outPath, prefix_file, "_chr", CHR,  "_h2f", hh, ".dbslmm") %>% system()
-          
+          system(paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, "_h2f", hh, ".dbslmm.badsnps"))
         }
       }
     }
-    
+
     ## remove temporary files
     system(paste0("rm -rf ", s_chr_str))
-    system(paste0("rm -rf ", opt$outPath, prefix_file, "_chr", CHR, ".dbslmm.badsnps"))
     return(CHR)
   })
 }
@@ -283,6 +287,3 @@ if (opt$model == "DBSLMM"){
 #     paste("cat",. , ">", paste0(opt$outPath, prefix_file, ".dbslmm.txt")) %>% system()
 # for (chr in 1: 22)
 #   paste0("rm -rf ", opt$outPath, prefix_file, "_chr", chr, ".dbslmm") %>% system()
-
-
-
