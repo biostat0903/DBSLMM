@@ -201,7 +201,7 @@ if (opt$model == "DBSLMM"){
                                 infos.pos = df_beta_sig$pos,
                                 lpS = lp_val,
                                 ncores = 1)
-  system(paste0("rm -rf ", ref_sub_str))
+  system(paste0("rm -rf ", ref_sub_str, "*"))
   l_chr <- data.frame(chr = c(1: 22),
                       l_b = c(1: 22) %in% names(all_keep),
                       count = NA)
