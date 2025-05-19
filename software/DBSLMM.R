@@ -126,7 +126,7 @@ if (length(N_str) == 1){
 }
 sumstats <- sumstats[, c(1, 3, 2, 6, 7, 8, 9, 10, 11)]
 sumstats$n_eff <- n_eff
-colnames(sumstats) <- c("chr", "pos", "rsid", "a0", "a1", "freq", "beta",
+colnames(sumstats) <- c("chr", "pos", "rsid", "a1", "a0", "freq", "beta",
                         "beta_se", "pval", "n_eff")
 ## Coordinate summary statistics and map
 df_beta <- as_tibble(snp_match(sumstats, map, strand_flip = FALSE, 
